@@ -1,7 +1,7 @@
-import NextAuth from "next-auth"
+import NextAuth, { AuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 
-const handler = NextAuth({
+export const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -13,7 +13,7 @@ const handler = NextAuth({
         if (!credentials) {
           return null;
         }
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/token`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/token`, {
           method: 'POST',
           body: new URLSearchParams({
             username: credentials.username,
@@ -22,18 +22,32 @@ const handler = NextAuth({
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         });
 
-        const user = await res.json();
+        const data = await res.json();
 
-        if (res.ok && user) {
-          return { ...user, username: credentials.username };
+        if (res.ok && data) {
+          return { ...data, username: credentials.username };
         }
         return null;
       },
     })
   ],
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.accessToken = (user as any).access_token;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      session.accessToken = token.accessToken as string;
+      return session;
+    },
+  },
   pages: {
     signIn: '/auth/signin',
   },
-});
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST }

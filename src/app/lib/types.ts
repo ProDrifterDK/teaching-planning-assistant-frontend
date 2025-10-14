@@ -38,3 +38,18 @@ export interface PlanRequest {
   contexto_unidad?: string;
   conocimientos_previos_requeridos?: string;
 }
+
+export interface User {
+  username: string;
+  email: string;
+  full_name?: string;
+  is_active: boolean;
+  role: string;
+}
+
+export interface UserCreate {
+  username: string;
+  email: string;
+  full_name?: string;
+  password?: string;
+}

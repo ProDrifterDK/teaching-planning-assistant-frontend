@@ -1,32 +1,30 @@
 'use client';
 
-import { signIn } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
-import { TextField, Button, Container, Typography, Box, Link } from '@mui/material';
-import NextLink from 'next/link';
+import { TextField, Button, Container, Typography, Box } from '@mui/material';
+import { UserCreate } from '@/app/lib/types';
+import { useRouter } from 'next/navigation';
 
-interface SignInForm {
-  username: string;
-  password: string;
-}
+export default function Register() {
+  const { register, handleSubmit } = useForm<UserCreate>();
+  const router = useRouter();
 
-export default function SignIn() {
-  const { register, handleSubmit } = useForm<SignInForm>();
-
-  const onSubmit = async (data: SignInForm) => {
-    await signIn('credentials', {
-      username: data.username,
-      password: data.password,
-      redirect: true,
-      callbackUrl: '/',
+  const onSubmit = async (data: UserCreate) => {
+    await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
     });
+    router.push('/auth/signin');
   };
 
   return (
     <Container maxWidth="xs">
       <Box sx={{ mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Typography component="h1" variant="h5">
-          Sign In
+          Register
         </Typography>
         <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 1 }}>
           <TextField
@@ -35,6 +33,20 @@ export default function SignIn() {
             fullWidth
             label="Username"
             {...register('username')}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            label="Email"
+            type="email"
+            {...register('email')}
+          />
+          <TextField
+            margin="normal"
+            fullWidth
+            label="Full Name"
+            {...register('full_name')}
           />
           <TextField
             margin="normal"
@@ -50,11 +62,8 @@ export default function SignIn() {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
           >
-            Sign In
+            Register
           </Button>
-          <Link component={NextLink} href="/auth/register" variant="body2">
-            {"Don't have an account? Sign Up"}
-          </Link>
         </Box>
       </Box>
     </Container>
