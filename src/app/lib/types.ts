@@ -1,0 +1,40 @@
+export interface Asignatura {
+  nombre: string;
+}
+
+export interface Curso {
+  nombre: string;
+  asignaturas: Asignatura[];
+}
+
+export interface Nivel {
+  nombre: string;
+  cursos: Curso[];
+}
+
+export interface OA {
+  oa_codigo_oficial: string;
+  descripcion_oa: string;
+  desglose_componentes?: string[];
+  habilidades?: string[];
+}
+
+export interface Eje {
+  nombre_eje: string;
+  oas: OA[];
+}
+
+export interface PlanRequest {
+  oa_codigo_oficial: string;
+  recurso_principal: string;
+  nivel_real_estudiantes: string;
+  materiales_disponibles?: string;
+  duracion_clase_minutos?: number;
+  numero_estudiantes?: number;
+  diversidad_aula?: string;
+  clima_de_aula?: string;
+  estilo_docente_preferido?: string;
+  tipo_evaluacion_formativa?: string;
+  contexto_unidad?: string;
+  conocimientos_previos_requeridos?: string;
+}
