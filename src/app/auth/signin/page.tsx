@@ -2,7 +2,7 @@
 
 import { signIn } from 'next-auth/react';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { TextField, Button, Container, Typography, Box, Link, Alert } from '@mui/material';
+import { TextField, Button, Container, Typography, Box, Link, Alert, CircularProgress } from '@mui/material';
 import NextLink from 'next/link';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -16,7 +16,7 @@ const validationSchema = z.object({
 type SignInForm = z.infer<typeof validationSchema>;
 
 export default function SignIn() {
-  const { register, handleSubmit, formState: { errors } } = useForm<SignInForm>({
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<SignInForm>({
     resolver: zodResolver(validationSchema)
   });
   const searchParams = useSearchParams();
@@ -63,8 +63,9 @@ export default function SignIn() {
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
+            disabled={isSubmitting}
           >
-            Sign In
+            {isSubmitting ? <CircularProgress size={24} /> : 'Sign In'}
           </Button>
           <Link component={NextLink} href="/auth/register" variant="body2">
             {"Don't have an account? Sign Up"}

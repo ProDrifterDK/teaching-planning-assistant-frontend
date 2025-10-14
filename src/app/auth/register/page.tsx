@@ -1,15 +1,15 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
-import { TextField, Button, Container, Typography, Box } from '@mui/material';
+import { useForm, SubmitHandler } from 'react-hook-form';
+import { TextField, Button, Container, Typography, Box, CircularProgress } from '@mui/material';
 import { UserCreate } from '@/app/lib/types';
 import { useRouter } from 'next/navigation';
 
 export default function Register() {
-  const { register, handleSubmit } = useForm<UserCreate>();
+  const { register, handleSubmit, formState: { isSubmitting } } = useForm<UserCreate>();
   const router = useRouter();
 
-  const onSubmit = async (data: UserCreate) => {
+  const onSubmit: SubmitHandler<UserCreate> = async (data) => {
     await fetch('/api/auth/register', {
       method: 'POST',
       headers: {
@@ -61,8 +61,9 @@ export default function Register() {
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
+            disabled={isSubmitting}
           >
-            Register
+            {isSubmitting ? <CircularProgress size={24} /> : 'Register'}
           </Button>
         </Box>
       </Box>

@@ -5,7 +5,7 @@ import { Eje, OA, PlanRequest } from '@/app/lib/types';
 import { useForm, Controller } from 'react-hook-form';
 import {
   TextField, Button,
-  Accordion, AccordionSummary, AccordionDetails, Typography, Box, Paper
+  Accordion, AccordionSummary, AccordionDetails, Typography, Box, Paper, CircularProgress
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { generatePlanStream } from '@/app/lib/api';
@@ -27,7 +27,7 @@ interface IFormInput {
 
 export default function FormularioPlanificacion({ ejes }: { ejes: Eje[] }) {
   const [selectedOA, setSelectedOA] = useState<OA | null>(null);
-  const { control, handleSubmit } = useForm<IFormInput>();
+  const { control, handleSubmit, formState: { isSubmitting } } = useForm<IFormInput>();
   const [pensamiento, setPensamiento] = useState('');
   const [planificacion, setPlanificacion] = useState('');
 
@@ -93,8 +93,8 @@ export default function FormularioPlanificacion({ ejes }: { ejes: Eje[] }) {
         render={({ field }) => <TextField {...field} label="Nivel Real de los Estudiantes" fullWidth margin="normal" required />}
       />
       {/* ... más campos del formulario ... */}
-      <Button type="submit" variant="contained" sx={{ mt: 2 }} disabled={!selectedOA}>
-        Generar Planificación
+      <Button type="submit" variant="contained" sx={{ mt: 2 }} disabled={!selectedOA || isSubmitting}>
+        {isSubmitting ? <CircularProgress size={24} /> : 'Generar Planificación'}
       </Button>
 
       {pensamiento && <Typography sx={{ mt: 2 }}>Pensando: {pensamiento}</Typography>}
