@@ -6,7 +6,8 @@ import { TextField, Button, Container, Typography, Box, Link, Alert, CircularPro
 import NextLink from 'next/link';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 const validationSchema = z.object({
   username: z.string().min(1, { message: "Username is required" }),
@@ -19,16 +20,21 @@ export default function SignIn() {
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<SignInForm>({
     resolver: zodResolver(validationSchema)
   });
-  const searchParams = useSearchParams();
-  const error = searchParams.get('error');
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
 
   const onSubmit: SubmitHandler<SignInForm> = async (data) => {
-    await signIn('credentials', {
+    const result = await signIn('credentials', {
       username: data.username,
       password: data.password,
-      redirect: true,
-      callbackUrl: '/',
+      redirect: false,
     });
+
+    if (result?.error) {
+      setError(result.error);
+    } else {
+      router.push('/');
+    }
   };
 
   return (
