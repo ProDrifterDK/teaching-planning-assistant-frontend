@@ -1,19 +1,28 @@
 'use client';
 
 import { signIn } from 'next-auth/react';
-import { useForm } from 'react-hook-form';
-import { TextField, Button, Container, Typography, Box, Link } from '@mui/material';
+import { useForm, SubmitHandler } from 'react-hook-form';
+import { TextField, Button, Container, Typography, Box, Link, Alert } from '@mui/material';
 import NextLink from 'next/link';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { useSearchParams } from 'next/navigation';
 
-interface SignInForm {
-  username: string;
-  password: string;
-}
+const validationSchema = z.object({
+  username: z.string().min(1, { message: "Username is required" }),
+  password: z.string().min(1, { message: "Password is required" }),
+});
+
+type SignInForm = z.infer<typeof validationSchema>;
 
 export default function SignIn() {
-  const { register, handleSubmit } = useForm<SignInForm>();
+  const { register, handleSubmit, formState: { errors } } = useForm<SignInForm>({
+    resolver: zodResolver(validationSchema)
+  });
+  const searchParams = useSearchParams();
+  const error = searchParams.get('error');
 
-  const onSubmit = async (data: SignInForm) => {
+  const onSubmit: SubmitHandler<SignInForm> = async (data) => {
     await signIn('credentials', {
       username: data.username,
       password: data.password,
@@ -28,6 +37,7 @@ export default function SignIn() {
         <Typography component="h1" variant="h5">
           Sign In
         </Typography>
+        {error && <Alert severity="error" sx={{ mt: 2, width: '100%' }}>{error}</Alert>}
         <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 1 }}>
           <TextField
             margin="normal"
@@ -35,6 +45,8 @@ export default function SignIn() {
             fullWidth
             label="Username"
             {...register('username')}
+            error={!!errors.username}
+            helperText={errors.username?.message}
           />
           <TextField
             margin="normal"
@@ -43,6 +55,8 @@ export default function SignIn() {
             label="Password"
             type="password"
             {...register('password')}
+            error={!!errors.password}
+            helperText={errors.password?.message}
           />
           <Button
             type="submit"

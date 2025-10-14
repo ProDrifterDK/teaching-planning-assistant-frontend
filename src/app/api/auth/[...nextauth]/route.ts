@@ -27,6 +27,11 @@ export const authOptions: AuthOptions = {
         if (res.ok && data) {
           return { ...data, username: credentials.username };
         }
+        
+        if (data.detail) {
+          throw new Error(data.detail);
+        }
+        
         return null;
       },
     })
