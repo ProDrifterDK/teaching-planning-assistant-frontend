@@ -10,6 +10,10 @@ type NivelesResponse = {
   error: string | null;
 }
 
+type RawAsignaturas = string[];
+type RawCursos = Record<string, RawAsignaturas>;
+type RawNiveles = Record<string, RawCursos>;
+
 async function getNiveles(accessToken: string): Promise<NivelesResponse> {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/curriculum/niveles`, {
@@ -25,8 +29,17 @@ async function getNiveles(accessToken: string): Promise<NivelesResponse> {
       return { data: null, error: errorData.detail || "Your account may not be active yet, or there may be a server issue." };
     }
 
-    const data = await res.json();
-    return { data, error: null };
+    const rawData: RawNiveles = await res.json();
+    const transformedData: Nivel[] = Object.entries(rawData).map(([nivelNombre, cursosData]) => ({
+      nombre: nivelNombre,
+      cursos: Object.entries(cursosData).map(([cursoNombre, asignaturasData]) => ({
+        nombre: cursoNombre,
+        asignaturas: asignaturasData.map((asignaturaNombre) => ({
+          nombre: asignaturaNombre,
+        })),
+      })),
+    }));
+    return { data: transformedData, error: null };
   } catch (error) {
     console.error("Fetch Error:", error);
     return { data: null, error: "Could not connect to the server. Please try again later." };
