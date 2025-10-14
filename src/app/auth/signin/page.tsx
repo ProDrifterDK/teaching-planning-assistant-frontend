@@ -6,8 +6,8 @@ import { TextField, Button, Container, Typography, Box, Link, Alert, CircularPro
 import NextLink from 'next/link';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 
 const validationSchema = z.object({
   username: z.string().min(1, { message: "Username is required" }),
@@ -22,6 +22,15 @@ export default function SignIn() {
   });
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const registered = searchParams.get('registered');
+    if (registered) {
+      setSuccess("Your account has been created successfully. Please sign in.");
+    }
+  }, [searchParams]);
 
   const onSubmit: SubmitHandler<SignInForm> = async (data) => {
     const result = await signIn('credentials', {
@@ -44,6 +53,7 @@ export default function SignIn() {
           Sign In
         </Typography>
         {error && <Alert severity="error" sx={{ mt: 2, width: '100%' }}>{error}</Alert>}
+        {success && <Alert severity="success" sx={{ mt: 2, width: '100%' }}>{success}</Alert>}
         <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 1 }}>
           <TextField
             margin="normal"

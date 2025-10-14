@@ -17,7 +17,7 @@ export default function Register() {
       },
       body: JSON.stringify(data),
     });
-    router.push('/auth/signin');
+    router.push('/auth/signin?registered=true');
   };
 
   return (
