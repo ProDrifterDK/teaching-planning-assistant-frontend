@@ -34,9 +34,11 @@ async function getNiveles(accessToken: string): Promise<NivelesResponse> {
       nombre: nivelNombre,
       cursos: Object.entries(cursosData).map(([cursoNombre, asignaturasData]) => ({
         nombre: cursoNombre,
-        asignaturas: asignaturasData.map((asignaturaNombre) => ({
-          nombre: asignaturaNombre,
-        })),
+        asignaturas: Array.isArray(asignaturasData)
+          ? asignaturasData.map((asignaturaNombre) => ({
+              nombre: asignaturaNombre,
+            }))
+          : [],
       })),
     }));
     return { data: transformedData, error: null };
