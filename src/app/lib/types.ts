@@ -37,6 +37,7 @@ export interface PlanRequest {
   tipo_evaluacion_formativa?: string;
   contexto_unidad?: string;
   conocimientos_previos_requeridos?: string;
+  solicitud_especial?: string;
 }
 
 export interface User {

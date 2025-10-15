@@ -24,6 +24,7 @@ interface IFormInput {
   tipo_evaluacion_formativa?: string;
   contexto_unidad?: string;
   conocimientos_previos_requeridos?: string;
+  solicitud_especial?: string;
 }
 
 interface Props {
@@ -118,6 +119,7 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
                   <Controller name="tipo_evaluacion_formativa" control={control} defaultValue="" render={({ field }) => <TextField {...field} multiline rows={2} label="Tipo de Evaluación Formativa" fullWidth margin="normal" />} />
                   <Controller name="contexto_unidad" control={control} defaultValue="" render={({ field }) => <TextField {...field} multiline rows={2} label="Contexto de la Unidad" fullWidth margin="normal" />} />
                   <Controller name="conocimientos_previos_requeridos" control={control} defaultValue="" render={({ field }) => <TextField {...field} multiline rows={2} label="Conocimientos Previos Requeridos" fullWidth margin="normal" />} />
+                  <Controller name="solicitud_especial" control={control} defaultValue="" render={({ field }) => <TextField {...field} multiline rows={2} label="Solicitud Especial" fullWidth margin="normal" />} />
                 </Grid>
               </Grid>
             </Paper>
