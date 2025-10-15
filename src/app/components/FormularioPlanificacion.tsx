@@ -132,23 +132,25 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
         {activeStep === 1 && (
           <Box sx={{ mt: 3 }}>
             <Grid container spacing={4}>
-              <Grid size={{ xs: 12, md: 5 }}>
-                <Typography variant="h6" gutterBottom>Flujo de Pensamiento de la IA</Typography>
-                <Paper elevation={2} sx={{ p: 2, height: '100%', minHeight: '300px' }}>
-                  {pensamiento && (
-                    <Fade in={true} timeout={500}>
-                      <Box sx={{ mb: 2 }}>
-                        <Chip icon={<PsychologyIcon />} label="Pensando..." size="small" />
-                        <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'grey.600', mt: 1 }}>
-                          {pensamiento}
-                        </Typography>
-                      </Box>
-                    </Fade>
-                  )}
-                  {!isStreamingComplete && !pensamiento && <Skeleton variant="text" height={100} />}
-                </Paper>
-              </Grid>
-              <Grid size={{ xs: 12, md: 7 }}>
+              {planificacion === '' && (
+                <Grid size={{ xs: 12, md: 5 }}>
+                  <Typography variant="h6" gutterBottom>Flujo de Pensamiento de la IA</Typography>
+                  <Paper elevation={2} sx={{ p: 2, height: '100%', minHeight: '300px' }}>
+                    {pensamiento && (
+                      <Fade in={true} key={pensamiento} timeout={500}>
+                        <Box sx={{ mb: 2 }}>
+                          <Chip icon={<PsychologyIcon />} label="Pensando..." size="small" />
+                          <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'grey.600', mt: 1 }}>
+                            {pensamiento}
+                          </Typography>
+                        </Box>
+                      </Fade>
+                    )}
+                    {!isStreamingComplete && !pensamiento && <Skeleton variant="text" height={100} />}
+                  </Paper>
+                </Grid>
+              )}
+              <Grid size={{ xs: 12, md: planificacion === '' ? 7 : 12 }}>
                 <Typography variant="h6" gutterBottom>Planificación Generada</Typography>
                 <Paper elevation={2} sx={{ p: 3, height: '100%', minHeight: '300px', transition: 'height 0.3s ease-out' }}>
                   {planificacion ? (
