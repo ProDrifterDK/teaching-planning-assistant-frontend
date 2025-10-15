@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Nivel, PlanRequest } from './types';
+import { Nivel, PlanRequest, Eje } from './types';
 
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
@@ -7,6 +7,13 @@ const apiClient = axios.create({
 
 export const getNiveles = async (): Promise<Nivel[]> => {
   const response = await apiClient.get('/curriculum/niveles');
+  return response.data;
+};
+
+export const getOAs = async (curso: string, asignatura: string): Promise<Eje[]> => {
+  const response = await apiClient.get('/curriculum/oas', {
+    params: { curso, asignatura },
+  });
   return response.data;
 };
 

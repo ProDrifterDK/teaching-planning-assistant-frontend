@@ -1,18 +1,18 @@
 import { getServerSession } from "next-auth";
 import SelectorCurricular from "./components/SelectorCurricular";
-import { Nivel } from "./lib/types";
+import { Curso } from "./lib/types";
 import { Container, Typography, Alert } from "@mui/material";
 import { redirect } from "next/navigation";
 import { authOptions } from "./api/auth/[...nextauth]/route";
 
 type NivelesResponse = {
-  data: Nivel[] | null;
+  data: Curso[] | null;
   error: string | null;
 }
 
-type RawNiveles = Record<string, string[]>;
+type RawData = Record<string, string[]>;
 
-async function getNiveles(accessToken: string): Promise<NivelesResponse> {
+async function getCursos(accessToken: string): Promise<NivelesResponse> {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/curriculum/niveles`, {
       headers: {
@@ -30,14 +30,13 @@ async function getNiveles(accessToken: string): Promise<NivelesResponse> {
       return { data: null, error: errorData.detail || "Your account may not be active yet, or there may be a server issue." };
     }
 
-    const rawData: RawNiveles = await res.json();
+    const rawData: RawData = await res.json();
     console.log("Raw API Response:", JSON.stringify(rawData, null, 2));
-    const transformedData: Nivel[] = Object.entries(rawData).map(([nivelNombre, cursosData]) => ({
-      nombre: nivelNombre,
-      cursos: Array.isArray(cursosData)
-        ? cursosData.map((cursoNombre) => ({
-            nombre: cursoNombre,
-            asignaturas: [{ nombre: cursoNombre }], // Treat the 'Curso' as its own single 'Asignatura'
+    const transformedData: Curso[] = Object.entries(rawData).map(([cursoNombre, asignaturasData]) => ({
+      nombre: cursoNombre,
+      asignaturas: Array.isArray(asignaturasData)
+        ? asignaturasData.map((asignaturaNombre) => ({
+            nombre: asignaturaNombre,
           }))
         : [],
     }));
@@ -55,7 +54,7 @@ export default async function HomePage() {
     redirect('/auth/signin');
   }
 
-  const { data: niveles, error } = await getNiveles(session.accessToken as string);
+  const { data: cursos, error } = await getCursos(session.accessToken as string);
 
   if (error === "SESSION_EXPIRED") {
     redirect('/auth/signin');
@@ -69,7 +68,7 @@ export default async function HomePage() {
       {error ? (
         <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>
       ) : (
-        <SelectorCurricular niveles={niveles || []} />
+        <SelectorCurricular cursos={cursos || []} />
       )}
     </Container>
   );
