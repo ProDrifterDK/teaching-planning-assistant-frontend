@@ -99,7 +99,7 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
 
     await generatePlanStream(
       requestData,
-      () => {},
+      () => { },
       (answerChunk) => {
         if (planificacion === '') {
           // Clear fake thoughts once real data arrives
@@ -164,21 +164,20 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
         )}
 
         {activeStep === 1 && (
-          <Box sx={{ mt: 3 }}>
+          <Box sx={{ mt: 3, mb: 5 }}>
             <Grid container spacing={4}>
               {planificacion === '' ? (
                 <Grid size={{ xs: 12 }}>
-                  <Typography variant="h6" gutterBottom>Flujo de Pensamiento de la IA</Typography>
                   <Paper elevation={2} sx={{ p: 2, minHeight: '300px' }}>
                     {pensamiento && (
-                      <Fade in={true} key={pensamiento} timeout={500}>
-                        <Box sx={{ mb: 2 }}>
-                          <Chip icon={<PsychologyIcon />} label="Pensando..." size="small" />
+                      <Box sx={{ mb: 2 }}>
+                        <Chip icon={<PsychologyIcon />} label="Pensando..." size="small" />
+                        <Fade in={true} key={pensamiento} timeout={500}>
                           <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'grey.600', mt: 1 }}>
                             {pensamiento}
                           </Typography>
-                        </Box>
-                      </Fade>
+                        </Fade>
+                      </Box>
                     )}
                     {!isStreamingComplete && !pensamiento && <Skeleton variant="text" height={100} />}
                   </Paper>
@@ -188,7 +187,18 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
                   <Typography variant="h6" gutterBottom>Planificación Generada</Typography>
                   <Paper elevation={2} sx={{ p: 3, minHeight: '300px', transition: 'height 0.3s ease-out' }}>
                     <Box>
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{planificacion}</ReactMarkdown>
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          table: ({ node, ...props }) => (
+                            <Box sx={{ overflowX: 'auto' }}>
+                              <table {...props} />
+                            </Box>
+                          ),
+                        }}
+                      >
+                        {planificacion}
+                      </ReactMarkdown>
                       {!isStreamingComplete && (
                         <span className="blinking-cursor">|</span>
                       )}
@@ -198,10 +208,11 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
               )}
             </Grid>
           </Box>
-        )}
-      </form>
+        )
+        }
+      </form >
 
       {/* OA display is now implicit in the page title, no longer needed here */}
-    </Box>
+    </Box >
   );
 }
