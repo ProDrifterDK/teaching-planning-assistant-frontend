@@ -13,7 +13,8 @@ export const authOptions: AuthOptions = {
         if (!credentials) {
           return null;
         }
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/token`, {
+        // 1. Get Token
+        const tokenRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/token`, {
           method: 'POST',
           body: new URLSearchParams({
             username: credentials.username,
@@ -22,17 +23,33 @@ export const authOptions: AuthOptions = {
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         });
 
-        const data = await res.json();
+        const tokenData = await tokenRes.json();
 
-        if (res.ok && data) {
-          return { ...data, username: credentials.username };
+        if (!tokenRes.ok || !tokenData.access_token) {
+          if (tokenData.detail) {
+            throw new Error(tokenData.detail);
+          }
+          throw new Error("Failed to retrieve access token.");
         }
-        
-        if (data.detail) {
-          throw new Error(data.detail);
+
+        // 2. Get User Profile
+        const userRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/users/me`, {
+          headers: {
+            Authorization: `Bearer ${tokenData.access_token}`,
+          },
+        });
+
+        const userData = await userRes.json();
+
+        if (!userRes.ok || !userData) {
+          throw new Error("Failed to fetch user profile after login.");
         }
-        
-        return null;
+
+        // 3. Return combined user object
+        return {
+          ...userData,
+          access_token: tokenData.access_token,
+        };
       },
     })
   ],
@@ -40,11 +57,15 @@ export const authOptions: AuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.accessToken = user.access_token;
+        token.name = user.full_name;
+        token.email = user.email;
       }
       return token;
     },
     async session({ session, token }) {
-      session.accessToken = token.accessToken as string;
+      if (token.accessToken) {
+        session.accessToken = token.accessToken;
+      }
       return session;
     },
   },
