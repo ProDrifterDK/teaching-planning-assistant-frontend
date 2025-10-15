@@ -64,32 +64,44 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
 
   return (
     <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 4 }}>
-      <Typography variant="h6">Seleccione un Objetivo de Aprendizaje (OA)</Typography>
-      {ejes.map((eje) => (
-        <Accordion key={eje.nombre_eje}>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography>{eje.nombre_eje}</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            {eje.oas.map((oa) => (
-              <Paper
-                key={oa.oa_codigo_oficial}
-                onClick={() => setSelectedOA(oa)}
-                sx={{
-                  p: 2,
-                  mb: 1,
-                  cursor: 'pointer',
-                  border: selectedOA?.oa_codigo_oficial === oa.oa_codigo_oficial ? '2px solid' : '1px solid',
-                  borderColor: selectedOA?.oa_codigo_oficial === oa.oa_codigo_oficial ? 'primary.main' : 'grey.300'
-                }}
-              >
-                <Typography variant="subtitle1">{oa.oa_codigo_oficial}</Typography>
-                <Typography variant="body2">{oa.descripcion_oa}</Typography>
-              </Paper>
-            ))}
-          </AccordionDetails>
-        </Accordion>
-      ))}
+      {selectedOA_initial && selectedOA ? (
+        <>
+          <Typography variant="h6">Objetivo de Aprendizaje Seleccionado</Typography>
+          <Paper sx={{ p: 2, mb: 2, border: '2px solid', borderColor: 'primary.main' }}>
+            <Typography variant="subtitle1">{selectedOA.oa_codigo_oficial}</Typography>
+            <Typography variant="body2">{selectedOA.descripcion_oa}</Typography>
+          </Paper>
+        </>
+      ) : (
+        <>
+          <Typography variant="h6">Seleccione un Objetivo de Aprendizaje (OA)</Typography>
+          {ejes.map((eje) => (
+            <Accordion key={eje.nombre_eje}>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography>{eje.nombre_eje}</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                {eje.oas.map((oa) => (
+                  <Paper
+                    key={oa.oa_codigo_oficial}
+                    onClick={() => setSelectedOA(oa)}
+                    sx={{
+                      p: 2,
+                      mb: 1,
+                      cursor: 'pointer',
+                      border: selectedOA?.oa_codigo_oficial === oa.oa_codigo_oficial ? '2px solid' : '1px solid',
+                      borderColor: selectedOA?.oa_codigo_oficial === oa.oa_codigo_oficial ? 'primary.main' : 'grey.300'
+                    }}
+                  >
+                    <Typography variant="subtitle1">{oa.oa_codigo_oficial}</Typography>
+                    <Typography variant="body2">{oa.descripcion_oa}</Typography>
+                  </Paper>
+                ))}
+              </AccordionDetails>
+            </Accordion>
+          ))}
+        </>
+      )}
 
       <Typography variant="h6" sx={{ mt: 4 }}>Contexto del Aula</Typography>
       <Controller
