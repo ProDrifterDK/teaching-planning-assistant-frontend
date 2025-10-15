@@ -52,7 +52,7 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
     mode: 'onChange',
   });
 
-  const [pensamientos, setPensamientos] = useState<string[]>([]);
+  const [pensamiento, setPensamiento] = useState<string>('');
   const [planificacion, setPlanificacion] = useState('');
   const [isStreamingComplete, setIsStreamingComplete] = useState(false);
 
@@ -61,7 +61,7 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
     if (!selectedOA) return;
     setIsStreamingComplete(false);
     setPlanificacion('');
-    setPensamientos([]);
+    setPensamiento('');
 
     const requestData: PlanRequest = {
       ...data,
@@ -70,16 +70,9 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
       numero_estudiantes: data.numero_estudiantes === '' ? undefined : Number(data.numero_estudiantes),
     };
 
-    let thoughtBuffer = '';
     await generatePlanStream(
       requestData,
-      (thought) => {
-        thoughtBuffer += thought;
-        if (thought.endsWith('\n')) {
-          setPensamientos(prev => [...prev, thoughtBuffer]);
-          thoughtBuffer = '';
-        }
-      },
+      (thought) => setPensamiento(thought),
       (answerChunk) => setPlanificacion(prev => prev + answerChunk),
       () => setIsStreamingComplete(true)
     );
@@ -142,17 +135,17 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
               <Grid size={{ xs: 12, md: 5 }}>
                 <Typography variant="h6" gutterBottom>Flujo de Pensamiento de la IA</Typography>
                 <Paper elevation={2} sx={{ p: 2, height: '100%', minHeight: '300px' }}>
-                  {pensamientos.map((thought, index) => (
-                    <Fade in={true} key={index} timeout={500}>
+                  {pensamiento && (
+                    <Fade in={true} timeout={500}>
                       <Box sx={{ mb: 2 }}>
                         <Chip icon={<PsychologyIcon />} label="Pensando..." size="small" />
                         <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'grey.600', mt: 1 }}>
-                          <TypeAnimation sequence={[thought]} speed={80} repeat={0} cursor={false} />
+                          {pensamiento}
                         </Typography>
                       </Box>
                     </Fade>
-                  ))}
-                  {!isStreamingComplete && pensamientos.length === 0 && <Skeleton variant="text" height={100} />}
+                  )}
+                  {!isStreamingComplete && !pensamiento && <Skeleton variant="text" height={100} />}
                 </Paper>
               </Grid>
               <Grid size={{ xs: 12, md: 7 }}>
@@ -161,7 +154,13 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
                   {planificacion ? (
                     <Box>
                       <ReactMarkdown>{planificacion}</ReactMarkdown>
-                      {!isStreamingComplete && <span className="blinking-cursor">|</span>}
+                      {!isStreamingComplete && (
+                        <TypeAnimation
+                          sequence={[]}
+                          repeat={Infinity}
+                          cursor={true}
+                        />
+                      )}
                     </Box>
                   ) : (
                     <Skeleton variant="rectangular" height={200} />
