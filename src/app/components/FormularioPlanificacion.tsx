@@ -32,6 +32,19 @@ interface Props {
   selectedOA_initial?: string;
 }
 
+const PENSAMIENTOS_FALSOS = [
+  "Analizando el Objetivo de Aprendizaje...",
+  "Considerando el nivel de los estudiantes...",
+  "Buscando los recursos más adecuados...",
+  "Estructurando la secuencia de la clase...",
+  "Diseñando actividades de inicio...",
+  "Creando el núcleo de la actividad principal...",
+  "Integrando momentos de evaluación formativa...",
+  "Planificando el cierre y la reflexión...",
+  "Ajustando los tiempos para cada etapa...",
+  "¡Casi listo! Dando los toques finales...",
+];
+
 export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Props) {
   const [activeStep, setActiveStep] = useState(0);
   const [selectedOA, setSelectedOA] = useState<OA | null>(() => {
@@ -57,6 +70,19 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
   const [planificacion, setPlanificacion] = useState('');
   const [isStreamingComplete, setIsStreamingComplete] = useState(false);
 
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (activeStep === 1 && !isStreamingComplete) {
+      setPensamiento(PENSAMIENTOS_FALSOS[0]);
+      let i = 1;
+      interval = setInterval(() => {
+        setPensamiento(PENSAMIENTOS_FALSOS[i % PENSAMIENTOS_FALSOS.length]);
+        i++;
+      }, 2000);
+    }
+    return () => clearInterval(interval);
+  }, [activeStep, isStreamingComplete]);
+
   const onSubmit = async (data: IFormInput) => {
     setActiveStep(1);
     if (!selectedOA) return;
@@ -73,8 +99,14 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
 
     await generatePlanStream(
       requestData,
-      (thought) => setPensamiento(thought),
-      (answerChunk) => setPlanificacion(prev => prev + answerChunk),
+      () => {},
+      (answerChunk) => {
+        if (planificacion === '') {
+          // Clear fake thoughts once real data arrives
+          setPensamiento('');
+        }
+        setPlanificacion(prev => prev + answerChunk)
+      },
       () => setIsStreamingComplete(true)
     );
   };
