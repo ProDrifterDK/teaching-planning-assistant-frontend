@@ -1,9 +1,19 @@
 import axios from 'axios';
+import { getSession } from 'next-auth/react';
 import { Nivel, PlanRequest, Eje } from './types';
 
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
 });
+
+apiClient.interceptors.request.use(async (config) => {
+  const session = await getSession();
+  if (session?.accessToken) {
+    config.headers.Authorization = `Bearer ${session.accessToken}`;
+  }
+  return config;
+});
+
 
 export const getNiveles = async (): Promise<Nivel[]> => {
   const response = await apiClient.get('/curriculum/niveles');
