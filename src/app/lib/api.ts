@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { getSession, signOut } from 'next-auth/react';
-import { Nivel, PlanRequest, Eje } from './types';
+import { AdminDashboardStats, Nivel, PlanRequest, Eje } from './types';
 
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
@@ -111,5 +111,10 @@ export const updateUserStatus = async (username: string, isActive: boolean) => {
 
 export const updateUserRole = async (username: string, role: string) => {
   const response = await apiClient.put(`/auth/users/${username}/role`, { role });
+  return response.data;
+};
+
+export const getDashboardStats = async (): Promise<AdminDashboardStats> => {
+  const response = await apiClient.get('/admin/dashboard-stats');
   return response.data;
 };

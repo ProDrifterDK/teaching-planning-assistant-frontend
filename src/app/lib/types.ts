@@ -54,3 +54,18 @@ export interface UserCreate {
   full_name?: string;
   password?: string;
 }
+
+export interface UserSummary {
+  username: string;
+  total_cost: number;
+  total_plannings: number;
+  is_active: boolean;
+  role: string;
+}
+
+export interface AdminDashboardStats {
+  total_users: number;
+  total_system_cost: number;
+  total_system_plannings: number;
+  users_summary: UserSummary[];
+}

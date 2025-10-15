@@ -4,23 +4,9 @@ import { useState, useEffect } from 'react';
 import { Container, Typography, Card, CardContent, Grid, CircularProgress, Alert, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Switch, Select, MenuItem, SelectChangeEvent, Snackbar } from '@mui/material';
 import { useSession } from 'next-auth/react';
 import { redirect } from 'next/navigation';
-import { updateUserStatus, updateUserRole } from '../lib/api';
+import { getDashboardStats, updateUserStatus, updateUserRole } from '../lib/api';
 
-interface UserSummary {
-  username: string;
-  total_cost: number;
-  total_plannings: number;
-  is_active: boolean;
-  role: string;
-}
-
-interface AdminDashboardStats {
-  total_users: number;
-  total_system_cost: number;
-  total_system_plannings: number;
-  users_summary: UserSummary[];
-}
-
+import { AdminDashboardStats } from '../lib/types';
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
   const [stats, setStats] = useState<AdminDashboardStats | null>(null);
@@ -31,33 +17,19 @@ export default function AdminDashboard() {
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
 
   const fetchStats = async () => {
-    if (session) {
-      setLoading(true);
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/dashboard-stats`, {
-          headers: {
-            Authorization: `Bearer ${session.accessToken}`,
-          },
-        });
-
-        if (!res.ok) {
-          if (res.status === 401) {
+    setLoading(true);
+    try {
+      const data = await getDashboardStats();
+      setStats(data);
+    } catch (err: unknown) {
+        const error = err as { response?: { status: number; data?: { detail: string } } };
+        if (error.response?.status === 401) {
             setError("Unauthorized. Please sign in again.");
-          } else {
-            const errorData = await res.json();
-            setError(errorData.detail || "Failed to fetch dashboard stats.");
-          }
-          return;
+        } else {
+            setError(error.response?.data?.detail || "Failed to fetch dashboard stats.");
         }
-
-        const data = await res.json();
-        setStats(data);
-
-      } catch (err) {
-        setError("Could not connect to the server.");
-      } finally {
-        setLoading(false);
-      }
+    } finally {
+      setLoading(false);
     }
   };
 
