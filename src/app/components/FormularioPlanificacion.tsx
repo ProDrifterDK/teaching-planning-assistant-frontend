@@ -332,12 +332,8 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
                           ul: (props) => (
                             <List
                               sx={{
-                                pl: 2,
+                                pl: 0,
                                 mb: 2,
-                                '& .MuiListItem-root': {
-                                  display: 'list-item',
-                                  listStyleType: 'none',
-                                }
                               }}
                               {...props}
                             />
@@ -367,8 +363,23 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
                             />
                           ),
                           li: ({ children }) => (
-                            <ListItem sx={{ py: 0.5, px: 0, display: 'flex', alignItems: 'flex-start' }}>
-                              <ListItemIcon sx={{ minWidth: '28px', mt: 0.5 }}>
+                            <ListItem
+                              sx={{
+                                py: 0.5,
+                                px: 0,
+                                display: 'flex',
+                                alignItems: 'flex-start',
+                                listStyleType: 'none',
+                              }}
+                            >
+                              <ListItemIcon
+                                sx={{
+                                  minWidth: '28px',
+                                  mt: '3px',
+                                  alignItems: 'flex-start',
+                                  flexShrink: 0,
+                                }}
+                              >
                                 <FiberManualRecordIcon
                                   sx={{
                                     fontSize: '0.5rem',
@@ -382,6 +393,7 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
                                   variant: 'body1',
                                   sx: { lineHeight: 1.8 }
                                 }}
+                                sx={{ margin: 0 }}
                               />
                             </ListItem>
                           ),
