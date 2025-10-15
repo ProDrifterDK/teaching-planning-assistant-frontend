@@ -32,16 +32,14 @@ async function getNiveles(accessToken: string): Promise<NivelesResponse> {
 
     const rawData: RawNiveles = await res.json();
     console.log("Raw API Response:", JSON.stringify(rawData, null, 2));
-    const transformedData: Nivel[] = Object.entries(rawData).map(([nivelNombre, asignaturasData]) => ({
+    const transformedData: Nivel[] = Object.entries(rawData).map(([nivelNombre, cursosData]) => ({
       nombre: nivelNombre,
-      cursos: [{ // Create a single, implicit "Curso"
-        nombre: nivelNombre,
-        asignaturas: Array.isArray(asignaturasData)
-          ? asignaturasData.map((asignaturaNombre) => ({
-              nombre: asignaturaNombre,
-            }))
-          : [],
-      }],
+      cursos: Array.isArray(cursosData)
+        ? cursosData.map((cursoNombre) => ({
+            nombre: cursoNombre,
+            asignaturas: [{ nombre: cursoNombre }], // Treat the 'Curso' as its own single 'Asignatura'
+          }))
+        : [],
     }));
     return { data: transformedData, error: null };
   } catch (error) {
