@@ -11,6 +11,7 @@ import PsychologyIcon from '@mui/icons-material/Psychology';
 import { generatePlanStream } from '@/app/lib/api';
 import ReactMarkdown from 'react-markdown';
 import { TypeAnimation } from 'react-type-animation';
+import remarkGfm from 'remark-gfm';
 
 interface IFormInput {
   recurso_principal: string;
@@ -154,7 +155,7 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
                   <Typography variant="h6" gutterBottom>Planificación Generada</Typography>
                   <Paper elevation={2} sx={{ p: 3, minHeight: '300px', transition: 'height 0.3s ease-out' }}>
                     <Box>
-                      <ReactMarkdown>{planificacion}</ReactMarkdown>
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{planificacion}</ReactMarkdown>
                       {!isStreamingComplete && (
                         <TypeAnimation
                           sequence={[]}
