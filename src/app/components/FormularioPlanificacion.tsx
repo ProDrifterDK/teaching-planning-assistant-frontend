@@ -113,8 +113,8 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
           // Clear fake thoughts once real data arrives
           setPensamiento('');
         }
-        // Replace single newlines with double newlines for proper markdown paragraph breaks
-        const processedChunk = answerChunk.replace(/\n/g, '  \n');
+        // Replace single newlines with <br /> for proper line breaks
+        const processedChunk = answerChunk.replace(/\n/g, '<br />');
         setPlanificacion(prev => prev + processedChunk)
       },
       () => setIsStreamingComplete(true)
@@ -230,7 +230,7 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
                   <Paper elevation={2} sx={{ p: 3, minHeight: '300px', transition: 'height 0.3s ease-out' }}>
                     <Box>
                       <ReactMarkdown
-                        remarkPlugins={[remarkGfm]}
+                        remarkPlugins={[[remarkGfm, { breaks: true }]]}
                         rehypePlugins={[rehypeRaw]}
                         components={{
                           br: () => <br />,
