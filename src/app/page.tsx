@@ -24,6 +24,9 @@ async function getNiveles(accessToken: string): Promise<NivelesResponse> {
     });
 
     if (!res.ok) {
+      if (res.status === 401) {
+        return { data: null, error: "SESSION_EXPIRED" };
+      }
       const errorData = await res.json();
       console.error("API Error:", errorData);
       return { data: null, error: errorData.detail || "Your account may not be active yet, or there may be a server issue." };
@@ -56,6 +59,10 @@ export default async function HomePage() {
   }
 
   const { data: niveles, error } = await getNiveles(session.accessToken as string);
+
+  if (error === "SESSION_EXPIRED") {
+    redirect('/api/auth/signin?error=Your session has expired. Please log in again.');
+  }
 
   return (
     <Container maxWidth="sm">
