@@ -33,6 +33,7 @@ async function getNiveles(accessToken: string): Promise<NivelesResponse> {
     }
 
     const rawData: RawNiveles = await res.json();
+    console.log("Raw API Response:", JSON.stringify(rawData, null, 2));
     const transformedData: Nivel[] = Object.entries(rawData).map(([nivelNombre, cursosData]) => ({
       nombre: nivelNombre,
       cursos: Object.entries(cursosData).map(([cursoNombre, asignaturasData]) => ({
