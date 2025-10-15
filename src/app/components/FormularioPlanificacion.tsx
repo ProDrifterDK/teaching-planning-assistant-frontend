@@ -56,14 +56,8 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
   const [planificacion, setPlanificacion] = useState('');
   const [isStreamingComplete, setIsStreamingComplete] = useState(false);
 
-  const handleNext = async () => {
-    const isValid = await trigger();
-    if (isValid) {
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    }
-  };
-
   const onSubmit = async (data: IFormInput) => {
+    setActiveStep(1);
     if (!selectedOA) return;
     setIsStreamingComplete(false);
     setPlanificacion('');
@@ -135,7 +129,9 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
               </Grid>
             </Paper>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-              <Button variant="contained" onClick={handleNext} disabled={!isValid}>Siguiente</Button>
+              <Button type="submit" variant="contained" disabled={!isValid || isSubmitting}>
+                {isSubmitting ? <CircularProgress size={24} /> : 'Generar Planificación'}
+              </Button>
             </Box>
           </Box>
         )}
@@ -173,11 +169,6 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
                 </Paper>
               </Grid>
             </Grid>
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-              <Button type="submit" variant="contained" disabled={isSubmitting}>
-                {isSubmitting ? <CircularProgress size={24} /> : 'Generar Planificación'}
-              </Button>
-            </Box>
           </Box>
         )}
       </form>
