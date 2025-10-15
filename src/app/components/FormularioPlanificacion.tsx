@@ -18,6 +18,7 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { generatePlanStream } from '@/app/lib/api';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
 
 interface IFormInput {
   recurso_principal: string;
@@ -228,7 +229,9 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
                     <Box>
                       <ReactMarkdown
                         remarkPlugins={[remarkGfm]}
+                        rehypePlugins={[rehypeRaw]}
                         components={{
+                          br: () => <br />,
                           h1: (props) => (
                             <Typography
                               variant="h3"
