@@ -7,6 +7,7 @@ const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use(async (config) => {
+  config.headers['ngrok-skip-browser-warning'] = 'true';
   const session = await getSession();
   if (session?.accessToken) {
     config.headers.Authorization = `Bearer ${session.accessToken}`;
@@ -54,6 +55,7 @@ export const generatePlanStream = async (
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${session.accessToken}`,
+        'ngrok-skip-browser-warning': 'true',
       },
       body: JSON.stringify(data),
     });
