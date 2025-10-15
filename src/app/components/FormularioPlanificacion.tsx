@@ -16,7 +16,7 @@ interface IFormInput {
   nivel_real_estudiantes: string;
   materiales_disponibles?: string;
   duracion_clase_minutos: number;
-  numero_estudiantes?: number;
+  numero_estudiantes?: number | '';
   diversidad_aula?: string;
   clima_de_aula?: string;
   estilo_docente_preferido?: string;
@@ -39,7 +39,11 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
     }
     return null;
   });
-  const { control, handleSubmit, formState: { isSubmitting } } = useForm<IFormInput>();
+  const { control, handleSubmit, formState: { isSubmitting } } = useForm<IFormInput>({
+    defaultValues: {
+      numero_estudiantes: '',
+    }
+  });
   const [pensamiento, setPensamiento] = useState('');
   const [planificacion, setPlanificacion] = useState('');
 
@@ -52,6 +56,7 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
       ...data,
       oa_codigo_oficial: selectedOA.oa_codigo_oficial,
       duracion_clase_minutos: Number(data.duracion_clase_minutos) || 90,
+      numero_estudiantes: data.numero_estudiantes === '' ? undefined : Number(data.numero_estudiantes),
     };
 
     await generatePlanStream(
@@ -131,8 +136,21 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
       <Controller
         name="numero_estudiantes"
         control={control}
-        defaultValue={undefined}
-        render={({ field }) => <TextField {...field} label="Número de Estudiantes" fullWidth margin="normal" type="number" />}
+        defaultValue=""
+        render={({ field }) => (
+            <TextField
+                {...field}
+                label="Número de Estudiantes"
+                fullWidth
+                margin="normal"
+                type="number"
+                onChange={event => {
+                    const value = event.target.value;
+                    field.onChange(value === '' ? '' : Number(value));
+                }}
+                value={field.value === null || field.value === undefined ? '' : field.value}
+            />
+        )}
       />
       <Controller
         name="diversidad_aula"
