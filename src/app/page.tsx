@@ -62,7 +62,7 @@ export default async function HomePage() {
   const { data: niveles, error } = await getNiveles(session.accessToken as string);
 
   if (error === "SESSION_EXPIRED") {
-    redirect('/api/auth/signin?error=Your session has expired. Please log in again.');
+    redirect('/api/auth/signin');
   }
 
   return (
