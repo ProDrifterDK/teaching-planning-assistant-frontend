@@ -190,9 +190,9 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
                       <ReactMarkdown
                         remarkPlugins={[remarkGfm]}
                         components={{
-                          table: ({ node, ...props }) => (
+                          table: (props) => (
                             <Box sx={{ overflowX: 'auto' }}>
-                              <table {...props} />
+                              <table style={{ display: 'block' }} {...props} />
                             </Box>
                           ),
                         }}
