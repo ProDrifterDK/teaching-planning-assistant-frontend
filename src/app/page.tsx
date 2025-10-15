@@ -56,13 +56,13 @@ export default async function HomePage() {
   const session = await getServerSession(authOptions);
 
   if (!session) {
-    redirect('/api/auth/signin');
+    redirect('/auth/signin');
   }
 
   const { data: niveles, error } = await getNiveles(session.accessToken as string);
 
   if (error === "SESSION_EXPIRED") {
-    redirect('/api/auth/signin');
+    redirect('/auth/signin');
   }
 
   return (
