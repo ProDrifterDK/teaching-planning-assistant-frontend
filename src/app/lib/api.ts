@@ -104,3 +104,12 @@ export const generatePlanStream = async (
     onComplete();
   }
 };
+export const updateUserStatus = async (username: string, isActive: boolean) => {
+  const response = await apiClient.put(`/auth/users/${username}/status`, { is_active: isActive });
+  return response.data;
+};
+
+export const updateUserRole = async (username: string, role: string) => {
+  const response = await apiClient.put(`/auth/users/${username}/role`, { role });
+  return response.data;
+};

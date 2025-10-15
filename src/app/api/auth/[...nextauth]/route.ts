@@ -59,14 +59,20 @@ export const authOptions: AuthOptions = {
         token.accessToken = user.access_token;
         token.name = user.full_name;
         token.email = user.email;
+        token.role = user.role;
       }
       return token;
     },
     async session({ session, token }) {
-      if (token.accessToken) {
-        session.accessToken = token.accessToken;
-      }
-      return session;
+      const newSession = {
+        ...session,
+        accessToken: token.accessToken as string,
+        user: {
+          ...session.user,
+          role: token.role as string,
+        },
+      };
+      return newSession;
     },
   },
   pages: {
