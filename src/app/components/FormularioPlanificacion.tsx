@@ -113,7 +113,9 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
           // Clear fake thoughts once real data arrives
           setPensamiento('');
         }
-        setPlanificacion(prev => prev + answerChunk)
+        // Replace single newlines with double newlines for proper markdown paragraph breaks
+        const processedChunk = answerChunk.replace(/\n/g, '  \n');
+        setPlanificacion(prev => prev + processedChunk)
       },
       () => setIsStreamingComplete(true)
     );
