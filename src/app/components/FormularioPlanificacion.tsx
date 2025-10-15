@@ -42,11 +42,14 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
     return null;
   });
 
-  const { control, handleSubmit, formState: { isSubmitting }, trigger } = useForm<IFormInput>({
+  const { control, handleSubmit, formState: { isSubmitting, isValid }, trigger } = useForm<IFormInput>({
     defaultValues: {
+      recurso_principal: '',
+      nivel_real_estudiantes: '',
       duracion_clase_minutos: 90,
       numero_estudiantes: '',
-    }
+    },
+    mode: 'onChange',
   });
 
   const [pensamientos, setPensamientos] = useState<string[]>([]);
@@ -132,7 +135,7 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
               </Grid>
             </Paper>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-              <Button variant="contained" onClick={handleNext}>Siguiente</Button>
+              <Button variant="contained" onClick={handleNext} disabled={!isValid}>Siguiente</Button>
             </Box>
           </Box>
         )}
