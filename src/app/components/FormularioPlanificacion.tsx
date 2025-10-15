@@ -393,6 +393,7 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
                                 primary={children}
                                 primaryTypographyProps={{
                                   variant: 'body1',
+                                  component: 'div',
                                   sx: { lineHeight: 1.8 }
                                 }}
                                 sx={{ margin: 0 }}
