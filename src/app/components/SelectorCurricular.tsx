@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useMemo, useEffect } from 'react';
 import { Curso, Asignatura, Eje } from '@/app/lib/types';
 import { getOAs } from '@/app/lib/api';
-import { Select, MenuItem, Button, FormControl, InputLabel, Box, CircularProgress } from '@mui/material';
+import { Select, MenuItem, Button, FormControl, InputLabel, Box, CircularProgress, Autocomplete, TextField } from '@mui/material';
 
 export default function SelectorCurricular({ cursos }: { cursos: Curso[] }) {
   const router = useRouter();
@@ -73,28 +73,30 @@ export default function SelectorCurricular({ cursos }: { cursos: Curso[] }) {
         </Select>
       </FormControl>
 
-      <FormControl fullWidth disabled={!selectedAsignatura || isLoading}>
-        <InputLabel>Objetivo de Aprendizaje</InputLabel>
-        <Select
-          value={selectedOA}
-          label="Objetivo de Aprendizaje"
-          onChange={(e) => setSelectedOA(e.target.value)}
-        >
-          {isLoading ? (
-            <MenuItem value="">
-              <CircularProgress size={20} />
-            </MenuItem>
-          ) : (
-            oas.flatMap(eje =>
-              eje.oas.map(oa => (
-                <MenuItem key={oa.oa_codigo_oficial} value={oa.oa_codigo_oficial}>
-                  {`${oa.oa_codigo_oficial}: ${oa.descripcion_oa}`}
-                </MenuItem>
-              ))
-            )
-          )}
-        </Select>
-      </FormControl>
+      <Autocomplete
+        options={oas.flatMap(eje => eje.oas.map(oa => ({ ...oa, ejeNombre: eje.nombre_eje })))}
+        groupBy={(option) => option.ejeNombre}
+        getOptionLabel={(option) => `${option.oa_codigo_oficial}: ${option.descripcion_oa}`}
+        isOptionEqualToValue={(option, value) => option.oa_codigo_oficial === value.oa_codigo_oficial}
+        onChange={(_, value) => setSelectedOA(value ? value.oa_codigo_oficial : '')}
+        loading={isLoading}
+        disabled={!selectedAsignatura || isLoading}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label="Objetivo de Aprendizaje"
+            InputProps={{
+              ...params.InputProps,
+              endAdornment: (
+                <>
+                  {isLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                  {params.InputProps.endAdornment}
+                </>
+              ),
+            }}
+          />
+        )}
+      />
 
       <Button
         variant="contained"
