@@ -132,10 +132,10 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
         {activeStep === 1 && (
           <Box sx={{ mt: 3 }}>
             <Grid container spacing={4}>
-              {planificacion === '' && (
-                <Grid size={{ xs: 12, md: 5 }}>
+              {planificacion === '' ? (
+                <Grid size={{ xs: 12 }}>
                   <Typography variant="h6" gutterBottom>Flujo de Pensamiento de la IA</Typography>
-                  <Paper elevation={2} sx={{ p: 2, height: '100%', minHeight: '300px' }}>
+                  <Paper elevation={2} sx={{ p: 2, minHeight: '300px' }}>
                     {pensamiento && (
                       <Fade in={true} key={pensamiento} timeout={500}>
                         <Box sx={{ mb: 2 }}>
@@ -149,11 +149,10 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
                     {!isStreamingComplete && !pensamiento && <Skeleton variant="text" height={100} />}
                   </Paper>
                 </Grid>
-              )}
-              <Grid size={{ xs: 12, md: planificacion === '' ? 7 : 12 }}>
-                <Typography variant="h6" gutterBottom>Planificación Generada</Typography>
-                <Paper elevation={2} sx={{ p: 3, height: '100%', minHeight: '300px', transition: 'height 0.3s ease-out' }}>
-                  {planificacion ? (
+              ) : (
+                <Grid size={{ xs: 12 }}>
+                  <Typography variant="h6" gutterBottom>Planificación Generada</Typography>
+                  <Paper elevation={2} sx={{ p: 3, minHeight: '300px', transition: 'height 0.3s ease-out' }}>
                     <Box>
                       <ReactMarkdown>{planificacion}</ReactMarkdown>
                       {!isStreamingComplete && (
@@ -164,11 +163,9 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
                         />
                       )}
                     </Box>
-                  ) : (
-                    <Skeleton variant="rectangular" height={200} />
-                  )}
-                </Paper>
-              </Grid>
+                  </Paper>
+                </Grid>
+              )}
             </Grid>
           </Box>
         )}
