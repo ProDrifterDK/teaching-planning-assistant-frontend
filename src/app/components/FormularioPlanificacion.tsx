@@ -104,8 +104,8 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
               <Typography variant="h6" gutterBottom>Contexto del Aula</Typography>
               <Grid container spacing={2}>
                 <Grid size={{ xs: 12, sm: 6 }}>
-                  <Controller name="recurso_principal" control={control} defaultValue="" render={({ field, fieldState }) => <TextField {...field} label="Recurso Principal" fullWidth margin="normal" required error={!!fieldState.error} helperText={fieldState.error?.message} />} />
-                  <Controller name="nivel_real_estudiantes" control={control} defaultValue="" render={({ field, fieldState }) => <TextField {...field} label="Nivel Real de los Estudiantes" fullWidth margin="normal" required error={!!fieldState.error} helperText={fieldState.error?.message} />} />
+                  <Controller name="recurso_principal" control={control} rules={{ required: 'Este campo es requerido' }} render={({ field, fieldState }) => <TextField {...field} label="Recurso Principal" fullWidth margin="normal" required error={!!fieldState.error} helperText={fieldState.error?.message} />} />
+                  <Controller name="nivel_real_estudiantes" control={control} rules={{ required: 'Este campo es requerido' }} render={({ field, fieldState }) => <TextField {...field} label="Nivel Real de los Estudiantes" fullWidth margin="normal" required error={!!fieldState.error} helperText={fieldState.error?.message} />} />
                   <Controller name="materiales_disponibles" control={control} defaultValue="" render={({ field }) => <TextField {...field} label="Materiales Disponibles" fullWidth margin="normal" />} />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
