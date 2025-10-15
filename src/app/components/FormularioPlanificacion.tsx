@@ -116,7 +116,60 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
         defaultValue=""
         render={({ field }) => <TextField {...field} label="Nivel Real de los Estudiantes" fullWidth margin="normal" required />}
       />
-      {/* ... más campos del formulario ... */}
+      <Controller
+        name="materiales_disponibles"
+        control={control}
+        defaultValue=""
+        render={({ field }) => <TextField {...field} label="Materiales Disponibles" fullWidth margin="normal" />}
+      />
+      <Controller
+        name="duracion_clase_minutos"
+        control={control}
+        defaultValue={90}
+        render={({ field }) => <TextField {...field} label="Duración de la Clase (minutos)" fullWidth margin="normal" type="number" />}
+      />
+      <Controller
+        name="numero_estudiantes"
+        control={control}
+        defaultValue={undefined}
+        render={({ field }) => <TextField {...field} label="Número de Estudiantes" fullWidth margin="normal" type="number" />}
+      />
+      <Controller
+        name="diversidad_aula"
+        control={control}
+        defaultValue=""
+        render={({ field }) => <TextField {...field} label="Diversidad del Aula" fullWidth margin="normal" />}
+      />
+      <Controller
+        name="clima_de_aula"
+        control={control}
+        defaultValue=""
+        render={({ field }) => <TextField {...field} label="Clima de Aula" fullWidth margin="normal" />}
+      />
+      <Controller
+        name="estilo_docente_preferido"
+        control={control}
+        defaultValue=""
+        render={({ field }) => <TextField {...field} label="Estilo Docente Preferido" fullWidth margin="normal" />}
+      />
+      <Controller
+        name="tipo_evaluacion_formativa"
+        control={control}
+        defaultValue=""
+        render={({ field }) => <TextField {...field} label="Tipo de Evaluación Formativa" fullWidth margin="normal" />}
+      />
+      <Controller
+        name="contexto_unidad"
+        control={control}
+        defaultValue=""
+        render={({ field }) => <TextField {...field} label="Contexto de la Unidad" fullWidth margin="normal" />}
+      />
+      <Controller
+        name="conocimientos_previos_requeridos"
+        control={control}
+        defaultValue=""
+        render={({ field }) => <TextField {...field} label="Conocimientos Previos Requeridos" fullWidth margin="normal" />}
+      />
       <Button type="submit" variant="contained" sx={{ mt: 2 }} disabled={!selectedOA || isSubmitting}>
         {isSubmitting ? <CircularProgress size={24} /> : 'Generar Planificación'}
       </Button>
