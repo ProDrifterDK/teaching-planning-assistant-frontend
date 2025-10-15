@@ -178,7 +178,39 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
                   <Paper elevation={2} sx={{ p: 2, minHeight: '300px' }}>
                     {pensamiento && (
                       <Box sx={{ mb: 2 }}>
-                        <Chip icon={<PsychologyIcon />} label="Pensando..." size="small" />
+                        <Chip
+                          icon={
+                            <PsychologyIcon
+                              sx={{
+                                animation: 'spin 2s linear infinite',
+                                '@keyframes spin': {
+                                  '0%': { transform: 'rotate(0deg)' },
+                                  '100%': { transform: 'rotate(360deg)' }
+                                }
+                              }}
+                            />
+                          }
+                          label="Pensando..."
+                          size="small"
+                          color="primary"
+                          sx={{
+                            animation: 'pulse 1.5s ease-in-out infinite',
+                            '@keyframes pulse': {
+                              '0%': {
+                                opacity: 1,
+                                transform: 'scale(1)',
+                              },
+                              '50%': {
+                                opacity: 0.8,
+                                transform: 'scale(1.05)',
+                              },
+                              '100%': {
+                                opacity: 1,
+                                transform: 'scale(1)',
+                              }
+                            }
+                          }}
+                        />
                         <Fade in={true} key={pensamiento} timeout={500}>
                           <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'grey.600', mt: 1 }}>
                             {pensamiento}
