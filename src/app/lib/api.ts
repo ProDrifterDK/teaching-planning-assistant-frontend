@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getSession } from 'next-auth/react';
+import { getSession, signOut } from 'next-auth/react';
 import { Nivel, PlanRequest, Eje } from './types';
 
 const apiClient = axios.create({
@@ -13,6 +13,16 @@ apiClient.interceptors.request.use(async (config) => {
   }
   return config;
 });
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      signOut({ callbackUrl: '/auth/signin' });
+    }
+    return Promise.reject(error);
+  }
+);
 
 
 export const getNiveles = async (): Promise<Nivel[]> => {
