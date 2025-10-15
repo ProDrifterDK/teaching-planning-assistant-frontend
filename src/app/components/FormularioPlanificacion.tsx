@@ -10,7 +10,6 @@ import {
 import PsychologyIcon from '@mui/icons-material/Psychology';
 import { generatePlanStream } from '@/app/lib/api';
 import ReactMarkdown from 'react-markdown';
-import { TypeAnimation } from 'react-type-animation';
 import remarkGfm from 'remark-gfm';
 
 interface IFormInput {
@@ -157,11 +156,7 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
                     <Box>
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>{planificacion}</ReactMarkdown>
                       {!isStreamingComplete && (
-                        <TypeAnimation
-                          sequence={[]}
-                          repeat={Infinity}
-                          cursor={true}
-                        />
+                        <span className="blinking-cursor">|</span>
                       )}
                     </Box>
                   </Paper>

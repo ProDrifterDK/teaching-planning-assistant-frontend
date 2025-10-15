@@ -40,3 +40,17 @@ a {
     color-scheme: dark;
   }
 }
+
+.blinking-cursor {
+  font-weight: bold;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  from, to {
+    color: transparent;
+  }
+  50% {
+    color: inherit;
+  }
+}
