@@ -41,7 +41,7 @@ export default function SelectorCurricular({ cursos }: { cursos: Curso[] }) {
 
   const handleNavigation = () => {
     if (selectedCurso && selectedAsignatura && selectedOA) {
-      router.push(`/planificar/${selectedCurso}/${selectedAsignatura}`);
+      router.push(`/planificar/${selectedCurso}/${selectedAsignatura}?selectedOA=${selectedOA}`);
     }
   };
 

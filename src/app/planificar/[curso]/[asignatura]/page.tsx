@@ -8,15 +8,23 @@ async function getOAs(curso: string, asignatura: string): Promise<Eje[] | undefi
   return res.json();
 }
 
-export default async function PlanificarPage({ params }: { params: { curso: string; asignatura: string } }) {
-  const ejesConOAs = await getOAs(decodeURIComponent(params.curso), decodeURIComponent(params.asignatura));
+interface PageProps {
+  params: { curso: string; asignatura: string };
+  searchParams: { selectedOA?: string };
+}
+
+export default async function PlanificarPage({ params: { curso, asignatura }, searchParams }: PageProps) {
+  const decodedCurso = decodeURIComponent(curso);
+  const decodedAsignatura = decodeURIComponent(asignatura);
+
+  const ejesConOAs = await getOAs(decodedCurso, decodedAsignatura);
 
   return (
     <Container maxWidth="md">
       <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ mt: 4 }}>
-        Planificar para {decodeURIComponent(params.curso)} - {decodeURIComponent(params.asignatura)}
+        Planificar para {decodedCurso} - {decodedAsignatura}
       </Typography>
-      <FormularioPlanificacion ejes={ejesConOAs || []} />
+      <FormularioPlanificacion ejes={ejesConOAs || []} selectedOA_initial={searchParams.selectedOA} />
     </Container>
   );
 }

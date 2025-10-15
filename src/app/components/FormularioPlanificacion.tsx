@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Eje, OA, PlanRequest } from '@/app/lib/types';
 import { useForm, Controller } from 'react-hook-form';
 import {
@@ -25,8 +25,20 @@ interface IFormInput {
   conocimientos_previos_requeridos?: string;
 }
 
-export default function FormularioPlanificacion({ ejes }: { ejes: Eje[] }) {
-  const [selectedOA, setSelectedOA] = useState<OA | null>(null);
+interface Props {
+  ejes: Eje[];
+  selectedOA_initial?: string;
+}
+
+export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Props) {
+  const [selectedOA, setSelectedOA] = useState<OA | null>(() => {
+    if (!selectedOA_initial) return null;
+    for (const eje of ejes) {
+      const oa = eje.oas.find(oa => oa.oa_codigo_oficial === selectedOA_initial);
+      if (oa) return oa;
+    }
+    return null;
+  });
   const { control, handleSubmit, formState: { isSubmitting } } = useForm<IFormInput>();
   const [pensamiento, setPensamiento] = useState('');
   const [planificacion, setPlanificacion] = useState('');
