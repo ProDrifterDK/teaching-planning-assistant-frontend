@@ -44,13 +44,26 @@ export const generatePlanStream = async (
   onComplete: () => void
 ) => {
   try {
-    const response = await apiClient.post('/planning/generate-plan', data, {
-      responseType: 'stream',
+    const session = await getSession();
+    if (!session?.accessToken) {
+      throw new Error("Not authenticated");
+    }
+
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/planning/generate-plan`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.accessToken}`,
+      },
+      body: JSON.stringify(data),
     });
 
-    const reader = response.data.getReader();
-    const decoder = new TextDecoder();
+    if (!response.body) {
+      throw new Error("No response body");
+    }
 
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
     let buffer = '';
 
     while (true) {
@@ -62,7 +75,7 @@ export const generatePlanStream = async (
 
       buffer += decoder.decode(value, { stream: true });
       const lines = buffer.split('\n');
-      buffer = lines.pop() || ''; // Keep the last partial line in the buffer
+      buffer = lines.pop() || '';
 
       for (const line of lines) {
         if (line.startsWith('data: ')) {
@@ -81,7 +94,11 @@ export const generatePlanStream = async (
       }
     }
   } catch (error) {
-    console.error('Error in generatePlanStream:', error);
-    onComplete(); // Ensure completion is called on error
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      // The interceptor will handle the redirect
+    } else {
+      console.error('Error in generatePlanStream:', error);
+    }
+    onComplete();
   }
 };
