@@ -1,6 +1,6 @@
 import FormularioPlanificacion from "@/app/components/FormularioPlanificacion";
 import { Eje } from "@/app/lib/types";
-import { Container, Typography } from "@mui/material";
+import { Container, Typography, Tooltip } from "@mui/material";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
@@ -31,11 +31,22 @@ export default async function PlanificarPage({ params: { curso, asignatura }, se
 
   const ejesConOAs = await getOAs(decodedCurso, decodedAsignatura, session.accessToken as string);
 
+  const selectedOAObject = ejesConOAs
+    ?.flatMap(eje => eje.oas)
+    .find(oa => oa.oa_codigo_oficial === searchParams.selectedOA);
+
   return (
     <Container maxWidth="md">
       <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ mt: 4 }}>
         Planificar para {decodedCurso} - {decodedAsignatura}
       </Typography>
+      {searchParams.selectedOA && (
+        <Tooltip title={selectedOAObject?.descripcion_oa || ''} arrow>
+          <Typography variant="subtitle1" component="h2" gutterBottom align="center" sx={{ color: 'text.secondary', cursor: 'help' }}>
+            {decodeURIComponent(searchParams.selectedOA)}
+          </Typography>
+        </Tooltip>
+      )}
       <FormularioPlanificacion ejes={ejesConOAs || []} selectedOA_initial={searchParams.selectedOA} />
     </Container>
   );

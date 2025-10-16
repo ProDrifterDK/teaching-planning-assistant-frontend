@@ -38,6 +38,13 @@ export interface PlanRequest {
   contexto_unidad?: string;
   conocimientos_previos_requeridos?: string;
   solicitud_especial?: string;
+  multimodal_resources?: {
+    youtube_urls?: string[];
+    attachments?: {
+      filename: string;
+      gemini_uri: string;
+    }[];
+  };
 }
 
 export interface User {
@@ -68,4 +75,22 @@ export interface AdminDashboardStats {
   total_system_cost: number;
   total_system_plannings: number;
   users_summary: UserSummary[];
+}
+
+export interface PlanningLogResponse {
+  id: number;
+  oa_codigo: string;
+  timestamp: string;
+}
+
+export interface PlanningLogDetailResponse {
+  id: number;
+  oa_codigo: string;
+  cost: number;
+  timestamp: string;
+  input_tokens: number;
+  output_tokens: number;
+  thought_tokens: number;
+  plan_request_data: PlanRequest;
+  plan_markdown: string;
 }

@@ -1,24 +1,46 @@
 'use client';
 
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { TextField, Button, Container, Typography, Box, CircularProgress } from '@mui/material';
+import { TextField, Button, Container, Typography, Box, CircularProgress, Alert } from '@mui/material';
 import { UserCreate } from '@/app/lib/types';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function Register() {
   const { register, handleSubmit, formState: { isSubmitting } } = useForm<UserCreate>();
-  const router = useRouter();
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const onSubmit: SubmitHandler<UserCreate> = async (data) => {
-    await fetch('/api/auth/register', {
+    setError(null);
+    const response = await fetch('/api/auth/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(data),
     });
-    router.push('/auth/signin?registered=true');
+
+    if (response.ok) {
+      setRegistrationSuccess(true);
+    } else {
+      const errorData = await response.json();
+      setError(errorData.detail || 'An unexpected error occurred.');
+    }
   };
+  if (registrationSuccess) {
+    return (
+        <Container maxWidth="sm">
+            <Box sx={{ mt: 8, p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', bgcolor: 'background.paper', borderRadius: 2 }}>
+                <Alert severity="success" sx={{ width: '100%', mb: 2 }}>
+                    ¡Registro exitoso!
+                </Alert>
+                <Typography variant="body1" align="center">
+                    Tu cuenta ha sido creada. Un administrador necesita activarla antes de que puedas iniciar sesión.
+                </Typography>
+            </Box>
+        </Container>
+    );
+  }
 
   return (
     <Container maxWidth="xs">
@@ -27,12 +49,14 @@ export default function Register() {
           Register
         </Typography>
         <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 1 }}>
+          {error && <Alert severity="error">{error}</Alert>}
           <TextField
             margin="normal"
             required
             fullWidth
             label="Username"
             {...register('username')}
+            autoComplete="username"
           />
           <TextField
             margin="normal"
@@ -41,12 +65,14 @@ export default function Register() {
             label="Email"
             type="email"
             {...register('email')}
+            autoComplete="email"
           />
           <TextField
             margin="normal"
             fullWidth
             label="Full Name"
             {...register('full_name')}
+            autoComplete="name"
           />
           <TextField
             margin="normal"
@@ -55,6 +81,7 @@ export default function Register() {
             label="Password"
             type="password"
             {...register('password')}
+            autoComplete="new-password"
           />
           <Button
             type="submit"

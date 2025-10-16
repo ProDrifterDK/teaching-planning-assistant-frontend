@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { getSession, signOut } from 'next-auth/react';
-import { AdminDashboardStats, Nivel, PlanRequest, Eje } from './types';
+import { AdminDashboardStats, Nivel, PlanRequest, Eje, PlanningLogResponse, PlanningLogDetailResponse } from './types';
 
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
@@ -39,10 +39,11 @@ export const getOAs = async (curso: string, asignatura: string): Promise<Eje[]> 
 };
 
 export const generatePlanStream = async (
-  data: PlanRequest,
+  data: FormData,
   onThought: (thought: string) => void,
   onAnswer: (answer: string) => void,
-  onComplete: () => void
+  onComplete: () => void,
+  onError: (error: string) => void
 ) => {
   try {
     const session = await getSession();
@@ -53,11 +54,10 @@ export const generatePlanStream = async (
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/planning/generate-plan`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
         'Authorization': `Bearer ${session.accessToken}`,
         'ngrok-skip-browser-warning': 'true',
       },
-      body: JSON.stringify(data),
+      body: data,
     });
 
     if (!response.body) {
@@ -88,6 +88,8 @@ export const generatePlanStream = async (
               onThought(parsedData.content);
             } else if (parsedData.type === 'answer') {
               onAnswer(parsedData.content);
+            } else if (parsedData.type === 'error') {
+              onError(parsedData.content);
             }
           } catch (error) {
             console.error('Error parsing SSE data:', error);
@@ -99,6 +101,8 @@ export const generatePlanStream = async (
     if (axios.isAxiosError(error) && error.response?.status === 401) {
       // The interceptor will handle the redirect
     } else {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+      onError(errorMessage);
       console.error('Error in generatePlanStream:', error);
     }
     onComplete();
@@ -116,5 +120,23 @@ export const updateUserRole = async (username: string, role: string) => {
 
 export const getDashboardStats = async (): Promise<AdminDashboardStats> => {
   const response = await apiClient.get('/admin/dashboard-stats');
+  return response.data;
+};
+
+export const getPlanningHistory = async (): Promise<PlanningLogResponse[]> => {
+  const session = await getSession();
+  if (!session?.accessToken) {
+    throw new Error("Not authenticated");
+  }
+  const response = await apiClient.get('/planning/history/me');
+  return response.data;
+};
+
+export const getPlanningHistoryDetail = async (planningId: string | number): Promise<PlanningLogDetailResponse> => {
+  const session = await getSession();
+  if (!session?.accessToken) {
+    throw new Error("Not authenticated");
+  }
+  const response = await apiClient.get(`/planning/history/${planningId}`);
   return response.data;
 };
