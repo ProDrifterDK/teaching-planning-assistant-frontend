@@ -19,7 +19,7 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      signOut({ callbackUrl: '/auth/signin' });
+      signOut({ callbackUrl: '/auth/signin?error=SessionExpired' });
     }
     return Promise.reject(error);
   }
@@ -59,6 +59,11 @@ export const generatePlanStream = async (
       },
       body: data,
     });
+
+    if (response.status === 401) {
+      signOut({ callbackUrl: '/auth/signin?error=SessionExpired' });
+      return;
+    }
 
     if (!response.body) {
       throw new Error("No response body");

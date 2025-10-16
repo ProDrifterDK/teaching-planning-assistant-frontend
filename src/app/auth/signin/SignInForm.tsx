@@ -30,6 +30,10 @@ export default function SignInForm() {
     if (registered) {
       setSuccess("Your account has been created successfully. Please sign in.");
     }
+    const errorParam = searchParams.get('error');
+    if (errorParam === 'SessionExpired') {
+      setError("Your session has expired. Please sign in again.");
+    }
   }, [searchParams]);
 
   const onSubmit: SubmitHandler<SignInForm> = async (data) => {
