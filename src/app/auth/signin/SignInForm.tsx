@@ -57,6 +57,7 @@ export default function SignInForm() {
         <Image
             src="/images/logo/copilot-docente-image.png"
             alt="Copilot Docente Logo"
+            width={300}
         />
         <Typography component="h1" variant="h5" sx={{ mt: 2 }}>
           Sign In
