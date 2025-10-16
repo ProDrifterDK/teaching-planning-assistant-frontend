@@ -37,6 +37,13 @@ export default function Register() {
                 <Typography variant="body1" align="center">
                     Tu cuenta ha sido creada. Un administrador necesita activarla antes de que puedas iniciar sesión.
                 </Typography>
+                <Button
+                    variant="contained"
+                    sx={{ mt: 2 }}
+                    onClick={() => window.location.href = '/auth/signin'}
+                >
+                    Ir al Login
+                </Button>
             </Box>
         </Container>
     );
