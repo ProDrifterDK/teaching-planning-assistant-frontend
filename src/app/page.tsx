@@ -1,9 +1,10 @@
 import { getServerSession } from "next-auth";
 import SelectorCurricular from "./components/SelectorCurricular";
 import { Curso } from "./lib/types";
-import { Container, Typography, Alert } from "@mui/material";
+import { Container, Typography, Alert, Box } from "@mui/material";
 import { redirect } from "next/navigation";
 import { authOptions } from "./api/auth/[...nextauth]/route";
+import Image from "next/image";
 
 type NivelesResponse = {
   data: Curso[] | null;
@@ -62,7 +63,15 @@ export default async function HomePage() {
 
   return (
     <Container maxWidth="sm">
-      <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ mt: 4 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <Image
+          src="/images/logo/copilot-docente landscape.png"
+          alt="Copilot Docente Logo"
+          width={400}
+          height={100}
+        />
+      </Box>
+      <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ mt: 2 }}>
         Planificador de Clases
       </Typography>
       {error ? (

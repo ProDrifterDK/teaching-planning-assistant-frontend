@@ -4,6 +4,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { TextField, Button, Container, Typography, Box, CircularProgress, Alert } from '@mui/material';
 import { UserCreate } from '@/app/lib/types';
 import { useState } from 'react';
+import Image from "next/image";
 
 export default function Register() {
   const { register, handleSubmit, formState: { isSubmitting } } = useForm<UserCreate>();
@@ -52,7 +53,13 @@ export default function Register() {
   return (
     <Container maxWidth="xs">
       <Box sx={{ mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Typography component="h1" variant="h5">
+        <Image
+            src="/images/logo/copilot-docente landscape.png"
+            alt="Copilot Docente Logo"
+            width={300}
+            height={75}
+        />
+        <Typography component="h1" variant="h5" sx={{ mt: 2 }}>
           Register
         </Typography>
         <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 1 }}>

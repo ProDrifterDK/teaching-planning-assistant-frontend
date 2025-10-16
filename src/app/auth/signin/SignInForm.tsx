@@ -8,6 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import Image from "next/image";
 
 const validationSchema = z.object({
   username: z.string().min(1, { message: "Username is required" }),
@@ -53,7 +54,13 @@ export default function SignInForm() {
   return (
     <Container maxWidth="xs">
       <Box sx={{ mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Typography component="h1" variant="h5">
+        <Image
+            src="/images/logo/copilot-docente landscape.png"
+            alt="Copilot Docente Logo"
+            width={300}
+            height={75}
+        />
+        <Typography component="h1" variant="h5" sx={{ mt: 2 }}>
           Sign In
         </Typography>
         {error && <Alert severity="error" sx={{ mt: 2, width: '100%' }}>{error}</Alert>}
