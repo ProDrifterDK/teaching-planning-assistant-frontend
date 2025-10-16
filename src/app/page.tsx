@@ -65,10 +65,8 @@ export default async function HomePage() {
     <Container maxWidth="sm">
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
         <Image
-          src="/images/logo/copilot-docente landscape.png"
+          src="/images/logo/copilot-docente-image.png"
           alt="Copilot Docente Logo"
-          width={400}
-          height={100}
         />
       </Box>
       <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ mt: 2 }}>

@@ -55,10 +55,8 @@ export default function SignInForm() {
     <Container maxWidth="xs">
       <Box sx={{ mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Image
-            src="/images/logo/copilot-docente landscape.png"
+            src="/images/logo/copilot-docente-image.png"
             alt="Copilot Docente Logo"
-            width={300}
-            height={75}
         />
         <Typography component="h1" variant="h5" sx={{ mt: 2 }}>
           Sign In
