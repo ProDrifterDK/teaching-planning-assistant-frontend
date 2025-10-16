@@ -47,7 +47,7 @@ export default async function PlanificarPage({ params: { curso, asignatura }, se
           </Typography>
         </Tooltip>
       )}
-      <FormularioPlanificacion ejes={ejesConOAs || []} selectedOA_initial={searchParams.selectedOA} />
+      <FormularioPlanificacion ejes={ejesConOAs || []} selectedOA_initial={searchParams.selectedOA} curso={decodedCurso} />
     </Container>
   );
 }

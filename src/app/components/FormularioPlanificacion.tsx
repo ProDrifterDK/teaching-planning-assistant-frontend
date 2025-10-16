@@ -40,6 +40,7 @@ interface IFormInput {
 interface Props {
   ejes: Eje[];
   selectedOA_initial?: string;
+  curso: string;
 }
 
 const PENSAMIENTOS_FALSOS = [
@@ -55,7 +56,7 @@ const PENSAMIENTOS_FALSOS = [
   "¡Casi listo! Dando los toques finales...",
 ];
 
-export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Props) {
+export default function FormularioPlanificacion({ ejes, selectedOA_initial, curso }: Props) {
   const [activeStep, setActiveStep] = useState(0);
   const [selectedOA, setSelectedOA] = useState<OA | null>(() => {
     if (!selectedOA_initial) return null;
@@ -106,6 +107,7 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial }: Pr
 
     const formData = new FormData();
     formData.append('oa_codigo_oficial', selectedOA.oa_codigo_oficial);
+    formData.append('curso', curso);
 
     Object.entries(data).forEach(([key, value]) => {
       if (value !== null && value !== undefined && value !== '') {
