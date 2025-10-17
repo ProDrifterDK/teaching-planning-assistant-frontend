@@ -53,7 +53,7 @@ export default function HistoryPage() {
 
   if (status === 'loading' || loading) {
     return (
-        <Grid container spacing={2} alignItems="center" sx={{alignContent: 'center', height: '100vh'}}>
+        <Grid container justifyContent="center" alignItems="center" sx={{ height: '100vh' }}>
           <Grid size={12}>
             <CircularProgress />
           </Grid>
