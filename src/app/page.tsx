@@ -67,7 +67,7 @@ export default async function HomePage() {
         <Image
           src="/images/logo/copilot-docente-image.png"
           alt="Copilot Docente Logo"
-          width={300}
+          width={200}
         />
       </Box>
       <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ mt: 2 }}>
