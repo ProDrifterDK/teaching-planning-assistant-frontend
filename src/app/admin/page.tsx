@@ -22,12 +22,12 @@ export default function AdminDashboard() {
       const data = await getDashboardStats();
       setStats(data);
     } catch (err: unknown) {
-        const error = err as { response?: { status: number; data?: { detail: string } } };
-        if (error.response?.status === 401) {
-            setError("Unauthorized. Please sign in again.");
-        } else {
-            setError(error.response?.data?.detail || "Failed to fetch dashboard stats.");
-        }
+      const error = err as { response?: { status: number; data?: { detail: string } } };
+      if (error.response?.status === 401) {
+        setError("Unauthorized. Please sign in again.");
+      } else {
+        setError(error.response?.data?.detail || "Failed to fetch dashboard stats.");
+      }
     } finally {
       setLoading(false);
     }
@@ -40,7 +40,11 @@ export default function AdminDashboard() {
   }, [session, status]);
 
   if (status === 'loading') {
-    return <CircularProgress />;
+    <Grid container justifyContent="center" alignItems="center" sx={{ height: '100vh' }}>
+      <Grid>
+        <CircularProgress />
+      </Grid>
+    </Grid>
   }
 
   if (!session) {
@@ -49,50 +53,50 @@ export default function AdminDashboard() {
 
   if (session?.user?.role !== 'admin') {
     return (
-        <Container>
-            <Alert severity="error">You are not authorized to view this page.</Alert>
-        </Container>
+      <Container>
+        <Alert severity="error">You are not authorized to view this page.</Alert>
+      </Container>
     );
   }
 
   const handleStatusChange = async (username: string, isActive: boolean) => {
     try {
-        await updateUserStatus(username, isActive);
-        setStats(prevStats => {
-            if (!prevStats) return null;
-            const updatedUsers = prevStats.users_summary.map(user => 
-                user.username === username ? { ...user, is_active: isActive } : user
-            );
-            return { ...prevStats, users_summary: updatedUsers };
-        });
-        setSnackbarMessage('User status updated successfully.');
-        setSnackbarSeverity('success');
-        setSnackbarOpen(true);
+      await updateUserStatus(username, isActive);
+      setStats(prevStats => {
+        if (!prevStats) return null;
+        const updatedUsers = prevStats.users_summary.map(user =>
+          user.username === username ? { ...user, is_active: isActive } : user
+        );
+        return { ...prevStats, users_summary: updatedUsers };
+      });
+      setSnackbarMessage('User status updated successfully.');
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
     } catch (error) {
-        setSnackbarMessage('Failed to update user status.');
-        setSnackbarSeverity('error');
-        setSnackbarOpen(true);
+      setSnackbarMessage('Failed to update user status.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
     }
   };
 
   const handleRoleChange = async (event: SelectChangeEvent<string>, username: string) => {
     const newRole = event.target.value;
     try {
-        await updateUserRole(username, newRole);
-        setStats(prevStats => {
-            if (!prevStats) return null;
-            const updatedUsers = prevStats.users_summary.map(user => 
-                user.username === username ? { ...user, role: newRole } : user
-            );
-            return { ...prevStats, users_summary: updatedUsers };
-        });
-        setSnackbarMessage('User role updated successfully.');
-        setSnackbarSeverity('success');
-        setSnackbarOpen(true);
+      await updateUserRole(username, newRole);
+      setStats(prevStats => {
+        if (!prevStats) return null;
+        const updatedUsers = prevStats.users_summary.map(user =>
+          user.username === username ? { ...user, role: newRole } : user
+        );
+        return { ...prevStats, users_summary: updatedUsers };
+      });
+      setSnackbarMessage('User role updated successfully.');
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
     } catch (error) {
-        setSnackbarMessage('Failed to update user role.');
-        setSnackbarSeverity('error');
-        setSnackbarOpen(true);
+      setSnackbarMessage('Failed to update user role.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
     }
   };
 
@@ -101,7 +105,11 @@ export default function AdminDashboard() {
   };
 
   if (loading) {
-    return <CircularProgress />;
+    <Grid container justifyContent="center" alignItems="center" sx={{ height: '100vh' }}>
+      <Grid>
+        <CircularProgress />
+      </Grid>
+    </Grid>
   }
 
   if (error) {
