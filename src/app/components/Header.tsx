@@ -19,15 +19,15 @@ export default function Header() {
         <Toolbar>
           <Box sx={{ flexGrow: 1 }}>
             <Link href="/" passHref>
-                <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+                <Box sx={{ display: { xs: 'none', sm: 'block' }, mt: 1 }}>
                     <Image
-                        src="/images/logo/copilot-docente-landscape.png"
+                        src="/images/logo/copilot-docente-logo.png"
                         alt="Copilot Docente Logo"
                         width={200}
                         priority
                     />
                 </Box>
-                <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
+                <Box sx={{ display: { xs: 'block', sm: 'none' }, mt: 1 }}>
                     <Image
                         src="/images/logo/copilot-docente-logo.png"
                         alt="Copilot Docente Logo"
