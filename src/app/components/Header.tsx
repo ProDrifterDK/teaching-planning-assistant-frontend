@@ -8,6 +8,7 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Header() {
   const { data: session, status } = useSession();
@@ -16,11 +17,17 @@ export default function Header() {
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
         <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            <Link href="/" passHref style={{ textDecoration: 'none', color: 'inherit' }}>
-              Teaching Planning Assistant
+          <Box sx={{ flexGrow: 1 }}>
+            <Link href="/" passHref>
+                <Image
+                src="/images/logo/copilot-docente-landscape.png"
+                alt="Copilot Docente Logo"
+                width={200}
+                height={50}
+                priority
+                />
             </Link>
-          </Typography>
+          </Box>
           {status === 'authenticated' ? (
             <>
               {session?.user?.role === 'admin' && (

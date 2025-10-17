@@ -63,14 +63,7 @@ export default async function HomePage() {
 
   return (
     <Container maxWidth="sm">
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-        <Image
-          src="/images/logo/copilot-docente-image.png"
-          alt="Copilot Docente Logo"
-          width={200}
-        />
-      </Box>
-      <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ mt: 2 }}>
+      <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ mt: 4 }}>
         Planificador de Clases
       </Typography>
       {error ? (
