@@ -19,13 +19,22 @@ export default function Header() {
         <Toolbar>
           <Box sx={{ flexGrow: 1 }}>
             <Link href="/" passHref>
-                <Image
-                src="/images/logo/copilot-docente-landscape.png"
-                alt="Copilot Docente Logo"
-                width={200}
-                height={50}
-                priority
-                />
+                <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+                    <Image
+                        src="/images/logo/copilot-docente-landscape.png"
+                        alt="Copilot Docente Logo"
+                        width={200}
+                        priority
+                    />
+                </Box>
+                <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
+                    <Image
+                        src="/images/logo/copilot-docente-logo.png"
+                        alt="Copilot Docente Logo"
+                        width={50}
+                        priority
+                    />
+                </Box>
             </Link>
           </Box>
           {status === 'authenticated' ? (
