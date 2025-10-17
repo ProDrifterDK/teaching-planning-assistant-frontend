@@ -15,6 +15,7 @@ import {
   Paper,
   CircularProgress,
   Alert,
+  Grid
 } from '@mui/material';
 import { getPlanningHistory } from '../lib/api';
 import { PlanningLogResponse } from '../lib/types';
@@ -53,7 +54,11 @@ export default function HistoryPage() {
   if (status === 'loading' || loading) {
     return (
       <Container sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-        <CircularProgress />
+        <Grid container spacing={2} alignItems="center">
+          <Grid size={12}>
+            <CircularProgress />
+          </Grid>
+        </Grid>
       </Container>
     );
   }
