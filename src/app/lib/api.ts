@@ -145,3 +145,11 @@ export const getPlanningHistoryDetail = async (planningId: string | number): Pro
   const response = await apiClient.get(`/planning/history/${planningId}`);
   return response.data;
 };
+
+export const exportPlanning = async (planningId: string | number, format: 'pdf' | 'docx') => {
+  const response = await apiClient.get(`/api/v1/export/plan/${planningId}`, {
+    params: { format },
+    responseType: 'blob', // Important for file downloads
+  });
+  return response.data;
+};

@@ -1,10 +1,11 @@
 'use client';
 
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { TextField, Button, Container, Typography, Box, CircularProgress, Alert } from '@mui/material';
+import { TextField, Button, Container, Typography, Box, CircularProgress, Alert, Grid } from '@mui/material';
 import { UserCreate } from '@/app/lib/types';
 import { useState } from 'react';
 import Image from "next/image";
+import Link from 'next/link';
 
 export default function Register() {
   const { register, handleSubmit, formState: { isSubmitting } } = useForm<UserCreate>();
@@ -25,7 +26,7 @@ export default function Register() {
       setRegistrationSuccess(true);
     } else {
       const errorData = await response.json();
-      setError(errorData.detail || 'An unexpected error occurred.');
+      setError(errorData.detail || 'Ocurrió un error inesperado.');
     }
   };
   if (registrationSuccess) {
@@ -57,9 +58,10 @@ export default function Register() {
             src="/images/logo/copilot-docente-image.png"
             alt="Copilot Docente Logo"
             width={200}
+            height={200}
         />
         <Typography component="h1" variant="h5" sx={{ mt: 2 }}>
-          Register
+          Registro
         </Typography>
         <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 1 }}>
           {error && <Alert severity="error">{error}</Alert>}
@@ -67,7 +69,7 @@ export default function Register() {
             margin="normal"
             required
             fullWidth
-            label="Username"
+            label="Nombre de usuario"
             {...register('username')}
             autoComplete="username"
           />
@@ -75,7 +77,7 @@ export default function Register() {
             margin="normal"
             required
             fullWidth
-            label="Email"
+            label="Correo electrónico"
             type="email"
             {...register('email')}
             autoComplete="email"
@@ -83,7 +85,7 @@ export default function Register() {
           <TextField
             margin="normal"
             fullWidth
-            label="Full Name"
+            label="Nombre completo"
             {...register('full_name')}
             autoComplete="name"
           />
@@ -91,7 +93,7 @@ export default function Register() {
             margin="normal"
             required
             fullWidth
-            label="Password"
+            label="Contraseña"
             type="password"
             {...register('password')}
             autoComplete="new-password"
@@ -103,8 +105,15 @@ export default function Register() {
             sx={{ mt: 3, mb: 2 }}
             disabled={isSubmitting}
           >
-            {isSubmitting ? <CircularProgress size={24} /> : 'Register'}
+            {isSubmitting ? <CircularProgress size={24} /> : 'Registrarse'}
           </Button>
+          <Grid container justifyContent="flex-end">
+            <Grid>
+              <Button component={Link} href="/auth/signin" variant="text">
+                ¿Ya tienes una cuenta? Inicia sesión
+              </Button>
+            </Grid>
+          </Grid>
         </Box>
       </Box>
     </Container>

@@ -27,8 +27,10 @@ import {
     TableHead,
     TableRow,
     TableCellProps,
+    Button,
+    ButtonGroup,
 } from '@mui/material';
-import { getPlanningHistoryDetail } from '../../lib/api';
+import { getPlanningHistoryDetail, exportPlanning } from '../../lib/api';
 import { PlanningLogDetailResponse, PlanRequest } from '../../lib/types';
 import { isAxiosError } from 'axios';
 import ReactMarkdown from 'react-markdown';
@@ -40,6 +42,8 @@ import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
 import CodeIcon from '@mui/icons-material/Code';
 import LinkIcon from '@mui/icons-material/Link';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import DescriptionIcon from '@mui/icons-material/Description';
 
 const planRequestLabels: Partial<Record<keyof PlanRequest, string>> = {
     oa_codigo_oficial: "OA Código Oficial",
@@ -65,6 +69,28 @@ export default function HistoryDetailPage() {
     const params = useParams();
     const router = useRouter();
     const { id } = params;
+    const [isExporting, setIsExporting] = useState(false);
+
+    const handleExport = async (format: 'pdf' | 'docx') => {
+        if (!id) return;
+        setIsExporting(true);
+        try {
+            const blob = await exportPlanning(id as string, format);
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `planificacion_${id}.${format}`);
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode?.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error exporting planning:', error);
+            setError('No se pudo generar la exportación. Inténtelo de nuevo.');
+        } finally {
+            setIsExporting(false);
+        }
+    };
 
     useEffect(() => {
         if (status === 'unauthenticated') {
@@ -127,6 +153,23 @@ export default function HistoryDetailPage() {
                              <Typography color="text.secondary">
                                 Fecha de Creación: {new Date(detail.timestamp).toLocaleString()}
                             </Typography>
+                            <Box sx={{ mt: 2 }}>
+                                <Typography variant="h6" gutterBottom>Exportar</Typography>
+                                <ButtonGroup variant="outlined" aria-label="outlined primary button group" disabled={isExporting}>
+                                    <Button
+                                        startIcon={isExporting ? <CircularProgress size={20} /> : <PictureAsPdfIcon />}
+                                        onClick={() => handleExport('pdf')}
+                                    >
+                                        PDF
+                                    </Button>
+                                    <Button
+                                        startIcon={isExporting ? <CircularProgress size={20} /> : <DescriptionIcon />}
+                                        onClick={() => handleExport('docx')}
+                                    >
+                                        Word
+                                    </Button>
+                                </ButtonGroup>
+                            </Box>
                             {detail.plan_request_data.multimodal_resources && (
                                 <>
                                     <Divider sx={{ my: 2 }} />

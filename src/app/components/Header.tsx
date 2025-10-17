@@ -24,6 +24,7 @@ export default function Header() {
                         src="/images/logo/copilot-docente-logo.png"
                         alt="Copilot Docente Logo"
                         width={50}
+                        height={50}
                         priority
                     />
                 </Box>

@@ -1,6 +1,6 @@
 'use client';
 
-import { signIn } from 'next-auth/react';
+import { signIn, getSession } from 'next-auth/react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { TextField, Button, Container, Typography, Box, Link, Alert, CircularProgress } from '@mui/material';
 import NextLink from 'next/link';
@@ -11,8 +11,8 @@ import { useState, useEffect } from 'react';
 import Image from "next/image";
 
 const validationSchema = z.object({
-  username: z.string().min(1, { message: "Username is required" }),
-  password: z.string().min(1, { message: "Password is required" }),
+  username: z.string().min(1, { message: "El nombre de usuario es requerido" }),
+  password: z.string().min(1, { message: "La contraseña es requerida" }),
 });
 
 type SignInForm = z.infer<typeof validationSchema>;
@@ -29,25 +29,32 @@ export default function SignInForm() {
   useEffect(() => {
     const registered = searchParams.get('registered');
     if (registered) {
-      setSuccess("Your account has been created successfully. Please sign in.");
+      setSuccess("Tu cuenta ha sido creada exitosamente. Por favor, inicia sesión.");
     }
     const errorParam = searchParams.get('error');
     if (errorParam === 'SessionExpired') {
-      setError("Your session has expired. Please sign in again.");
+      setError("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
     }
   }, [searchParams]);
 
   const onSubmit: SubmitHandler<SignInForm> = async (data) => {
+    setError(null);
+    setSuccess(null);
+
     const result = await signIn('credentials', {
       username: data.username,
       password: data.password,
       redirect: false,
     });
 
-    if (result?.error) {
-      setError(result.error);
+    // After signIn, the session should be updated. We check it directly.
+    const session = await getSession();
+
+    if (session) {
+      router.replace('/');
     } else {
-      router.push('/');
+      // If there's still no session, then the error from signIn is the real one.
+      setError(result?.error || 'No se pudo iniciar sesión. Verifique sus credenciales.');
     }
   };
 
@@ -58,9 +65,10 @@ export default function SignInForm() {
             src="/images/logo/copilot-docente-image.png"
             alt="Copilot Docente Logo"
             width={200}
+            height={200}
         />
         <Typography component="h1" variant="h5" sx={{ mt: 2 }}>
-          Sign In
+          Iniciar Sesión
         </Typography>
         {error && <Alert severity="error" sx={{ mt: 2, width: '100%' }}>{error}</Alert>}
         {success && <Alert severity="success" sx={{ mt: 2, width: '100%' }}>{success}</Alert>}
@@ -69,7 +77,7 @@ export default function SignInForm() {
             margin="normal"
             required
             fullWidth
-            label="Username"
+            label="Nombre de usuario"
             {...register('username')}
             error={!!errors.username}
             helperText={errors.username?.message}
@@ -78,7 +86,7 @@ export default function SignInForm() {
             margin="normal"
             required
             fullWidth
-            label="Password"
+            label="Contraseña"
             type="password"
             {...register('password')}
             error={!!errors.password}
@@ -91,11 +99,11 @@ export default function SignInForm() {
             sx={{ mt: 3, mb: 2 }}
             disabled={isSubmitting}
           >
-            {isSubmitting ? <CircularProgress size={24} /> : 'Sign In'}
+            {isSubmitting ? <CircularProgress size={24} /> : 'Iniciar Sesión'}
           </Button>
-          <Link component={NextLink} href="/auth/register" variant="body2">
-            {"Don't have an account? Sign Up"}
-          </Link>
+          <Button component={NextLink} href="/auth/register" variant="text">
+            ¿No tienes una cuenta? Regístrate
+          </Button>
         </Box>
       </Box>
     </Container>
