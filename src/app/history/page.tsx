@@ -53,13 +53,11 @@ export default function HistoryPage() {
 
   if (status === 'loading' || loading) {
     return (
-      <Container sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-        <Grid container spacing={2} alignItems="center">
+        <Grid container spacing={2} alignItems="center" sx={{alignContent: 'center', height: '100vh'}}>
           <Grid size={12}>
             <CircularProgress />
           </Grid>
         </Grid>
-      </Container>
     );
   }
 
