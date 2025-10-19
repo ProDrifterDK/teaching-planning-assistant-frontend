@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Eje, OA, PlanRequest } from '@/app/lib/types';
+import { Eje, OA } from '@/app/lib/types';
 import { useForm, Controller } from 'react-hook-form';
 import {
   TextField, Button,
   Typography, Box, Paper, CircularProgress, Stepper, Step, StepLabel, Grid, Slider, Divider, Chip, Fade, Skeleton,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableCellProps,
-  List, ListItem, ListItemIcon, ListItemText, Link, Alert
+  List, ListItem, ListItemIcon, ListItemText, Link, Alert, Tooltip, IconButton,
+  SxProps
 } from '@mui/material';
 import PsychologyIcon from '@mui/icons-material/Psychology';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
@@ -17,10 +18,19 @@ import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
 import CodeIcon from '@mui/icons-material/Code';
 import LinkIcon from '@mui/icons-material/Link';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { generatePlanStream } from '@/app/lib/api';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
+
+const InfoTooltip = ({ title }: { title: string }) => (
+  <Tooltip title={title}>
+    <IconButton size="small" sx={{ ml: 0.5, p: 0.2 }}>
+      <InfoOutlinedIcon fontSize="inherit" />
+    </IconButton>
+  </Tooltip>
+);
 
 interface IFormInput {
   recurso_principal: string;
@@ -41,10 +51,11 @@ interface Props {
   ejes: Eje[];
   selectedOA_initial?: string;
   curso: string;
+  sx?: SxProps;
 }
 
 const PENSAMIENTOS_FALSOS = [
-"Analizando el Objetivo de Aprendizaje (OA) para extraer sus verbos y conceptos clave...",
+  "Analizando el Objetivo de Aprendizaje (OA) para extraer sus verbos y conceptos clave...",
   "Considerando el nivel real de los estudiantes para adaptar la complejidad...",
   "Consultando la taxonomía de Bloom para asegurar un desafío cognitivo apropiado...",
   "Buscando recursos innovadores y materiales didácticos que capten la atención...",
@@ -75,7 +86,7 @@ const PENSAMIENTOS_FALSOS = [
   "Asegurando que la transición entre las actividades sea fluida y natural...",
 ];
 
-export default function FormularioPlanificacion({ ejes, selectedOA_initial, curso }: Props) {
+export default function FormularioPlanificacion({ ejes, selectedOA_initial, curso, sx }: Props) {
   const [activeStep, setActiveStep] = useState(0);
   const [selectedOA, setSelectedOA] = useState<OA | null>(() => {
     if (!selectedOA_initial) return null;
@@ -86,7 +97,7 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial, curs
     return null;
   });
 
-  const { control, handleSubmit, formState: { isSubmitting, isValid }, trigger } = useForm<IFormInput>({
+  const { control, handleSubmit, formState: { isSubmitting, isValid } } = useForm<IFormInput>({
     defaultValues: {
       recurso_principal: '',
       nivel_real_estudiantes: '',
@@ -146,10 +157,8 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial, curs
       () => { },
       (answerChunk) => {
         if (planificacion === '') {
-          // Clear fake thoughts once real data arrives
           setPensamiento('');
         }
-        // Replace single newlines with double newlines for proper markdown paragraph breaks
         const processedChunk = answerChunk.replace(/\n/g, '  \n');
         setPlanificacion(prev => prev + processedChunk)
       },
@@ -161,7 +170,7 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial, curs
   const steps = ['Contexto del Aula', 'Generación y Visualización'];
 
   return (
-    <Box sx={{ mt: 4 }}>
+    <Box sx={{ mt: 4, ...sx }}>
       <Stepper activeStep={activeStep} alternativeLabel>
         {steps.map((label) => (
           <Step key={label}>
@@ -170,19 +179,141 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial, curs
         ))}
       </Stepper>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
         {activeStep === 0 && (
           <Box sx={{ mt: 3 }}>
             <Paper elevation={2} sx={{ p: 3 }}>
               <Typography variant="h6" gutterBottom>Contexto del Aula</Typography>
-              <Grid container spacing={2}>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <Controller name="recurso_principal" control={control} rules={{ required: 'Este campo es requerido' }} render={({ field, fieldState }) => <TextField {...field} label="Recurso Principal" fullWidth margin="normal" required error={!!fieldState.error} helperText={fieldState.error?.message} />} />
-                  <Controller name="nivel_real_estudiantes" control={control} rules={{ required: 'Este campo es requerido' }} render={({ field, fieldState }) => <TextField {...field} label="Nivel Real de los Estudiantes" fullWidth margin="normal" required error={!!fieldState.error} helperText={fieldState.error?.message} />} />
-                  <Controller name="materiales_disponibles" control={control} defaultValue="" render={({ field }) => <TextField {...field} label="Materiales Disponibles" fullWidth margin="normal" />} />
-                   <TextField
+              <Grid container spacing={3}>
+                {/* --- CAMPOS OBLIGATORIOS --- */}
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <TextField
+                    InputLabelProps={{ shrink: true }}
+                    label={<Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>Objetivo de Aprendizaje (OA)</Box>}
+                    placeholder="Ej: OA 01"
+                    value={selectedOA?.oa_codigo_oficial || ''}
                     fullWidth
-                    label="URL de YouTube (Opcional)"
+                    margin="normal"
+                    disabled
+                  />
+                  <Controller
+                    name="recurso_principal"
+                    control={control}
+                    rules={{ required: 'Este campo es requerido' }}
+                    render={({ field, fieldState }) => (
+                      <TextField
+                        {...field}
+                        InputLabelProps={{ shrink: true }}
+                        label={<Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>Recurso Principal de la Clase<InfoTooltip title="Describe el recurso central que guiará la clase. Puede ser una página del libro, un video, una guía, un experimento, etc." /></Box>}
+                        placeholder="Ej: Texto del estudiante (páginas 20-25), guía de trabajo adjunta, video sobre la fotosíntesis."
+                        fullWidth
+                        margin="normal"
+                        required
+                        error={!!fieldState.error}
+                        helperText={fieldState.error?.message}
+                      />
+                    )}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <TextField
+                    InputLabelProps={{ shrink: true }}
+                    label={<Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>Curso</Box>}
+                    placeholder="Ej: 1° Básico"
+                    value={curso}
+                    fullWidth
+                    margin="normal"
+                    disabled
+                  />
+                  <Typography gutterBottom component="div" sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>Duración de la Clase (minutos)<InfoTooltip title="Indica la duración total de la clase en minutos. El asistente ajustará los tiempos de las actividades a este valor." /></Typography>
+                  <Controller
+                    name="duracion_clase_minutos"
+                    control={control}
+                    render={({ field }) => (
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1 }}>
+                        <Slider
+                          {...field}
+                          aria-label="Duración de la Clase (minutos)"
+                          valueLabelDisplay="off"
+                          step={15}
+                          marks
+                          min={30}
+                          max={120}
+                          sx={{ flexGrow: 1 }}
+                        />
+                        <Paper elevation={1} sx={{ p: '2px 8px', borderRadius: 1, minWidth: '50px', textAlign: 'center', backgroundColor: 'action.selected' }}>
+                          <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                            {field.value} min
+                          </Typography>
+                        </Paper>
+                      </Box>
+                    )}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12 }}>
+                  <Controller
+                    name="nivel_real_estudiantes"
+                    control={control}
+                    rules={{ required: 'Este campo es requerido' }}
+                    render={({ field, fieldState }) => (
+                      <TextField
+                        {...field}
+                        InputLabelProps={{ shrink: true }}
+                        label={<Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>Nivel de Aprendizaje del Grupo<InfoTooltip title="Describe el nivel general de comprensión y habilidades de tus estudiantes en relación a los contenidos de la asignatura." /></Box>}
+                        placeholder="Ej: Grupo avanzado, nivel heterogéneo con algunos estudiantes bajo el promedio, necesitan reforzar conceptos básicos."
+                        fullWidth
+                        margin="normal"
+                        required
+                        error={!!fieldState.error}
+                        helperText={fieldState.error?.message}
+                      />
+                    )}
+                  />
+                </Grid>
+
+                {/* --- CAMPOS OPCIONALES (CONTEXTO DEL AULA) --- */}
+                <Grid size={{ xs: 12 }}>
+                  <Divider sx={{ my: 2 }}><Chip label="Contexto del Aula (Opcional)" /></Divider>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                  <Controller name="numero_estudiantes" control={control} render={({ field }) => <TextField {...field} InputLabelProps={{ shrink: true }} label={<Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>Número de Estudiantes<InfoTooltip title="Indica cuántos estudiantes tienes en el curso. Esto ayuda a dimensionar las actividades grupales y la gestión de materiales." /></Box>} placeholder="Ej: 35" fullWidth margin="normal" />} />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6, md: 8 }}>
+                  <Controller name="materiales_disponibles" control={control} defaultValue="" render={({ field }) => <TextField {...field} InputLabelProps={{ shrink: true }} label={<Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>Materiales y Recursos Disponibles<InfoTooltip title="Lista todos los materiales y recursos con los que cuentas en el aula. La IA adaptará las actividades estrictamente a esta lista." /></Box>} placeholder="Ej: Pizarra, proyector, 3 computadores, plasticina, cartulinas de colores." fullWidth margin="normal" />} />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <Controller name="diversidad_aula" control={control} defaultValue="" render={({ field }) => <TextField {...field} InputLabelProps={{ shrink: true }} multiline rows={3} label={<Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>Diversidad en el Aula<InfoTooltip title="Describe las características de diversidad en tu aula para que la IA sugiera adaptaciones y estrategias de inclusión específicas." /></Box>} placeholder="Ej: 2 estudiantes con TEA, 1 con dificultades de aprendizaje en lectura, 3 estudiantes extranjeros con barrera idiomática." fullWidth margin="normal" />} />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <Controller name="clima_de_aula" control={control} defaultValue="" render={({ field }) => <TextField {...field} InputLabelProps={{ shrink: true }} multiline rows={3} label={<Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>Clima y Dinámica del Grupo<InfoTooltip title="Describe el ambiente general del aula y cómo interactúan los estudiantes entre sí. Esto ayuda a diseñar actividades que se ajusten a la dinámica grupal." /></Box>} placeholder="Ej: Son muy participativos pero tienden a desordenarse, grupo cohesionado y colaborador, algo apáticos." fullWidth margin="normal" />} />
+                </Grid>
+
+                {/* --- CAMPOS OPCIONALES (CONTEXTO PEDAGÓGICO) --- */}
+                <Grid size={{ xs: 12 }}>
+                  <Divider sx={{ my: 2 }}><Chip label="Contexto Pedagógico (Opcional)" /></Divider>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <Controller name="estilo_docente_preferido" control={control} defaultValue="" render={({ field }) => <TextField {...field} InputLabelProps={{ shrink: true }} multiline rows={2} label={<Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>Estilo Docente Preferido<InfoTooltip title="Indica tu enfoque pedagógico o el estilo de enseñanza con el que te sientes más cómodo para que la planificación se alinee a tu método." /></Box>} placeholder="Ej: Constructivista, clase expositiva con actividades prácticas, etc." fullWidth margin="normal" />} />
+                  <Controller name="tipo_evaluacion_formativa" control={control} defaultValue="" render={({ field }) => <TextField {...field} InputLabelProps={{ shrink: true }} multiline rows={2} label={<Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>Tipo de Evaluación Formativa<InfoTooltip title="Especifica qué tipo de evaluación formativa te gustaría incluir para monitorear el aprendizaje durante la clase." /></Box>} placeholder="Ej: Ticket de salida con 2 preguntas, monitoreo con lista de cotejo, preguntas al azar durante la clase." fullWidth margin="normal" />} />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <Controller name="contexto_unidad" control={control} defaultValue="" render={({ field }) => <TextField {...field} InputLabelProps={{ shrink: true }} multiline rows={2} label={<Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>Momento de la Unidad Didáctica<InfoTooltip title="Indica en qué parte de la secuencia de aprendizaje (unidad, proyecto, semestre) se encuentra esta clase." /></Box>} placeholder="Ej: Es la primera clase de la unidad, estamos a la mitad, clase de cierre y repaso." fullWidth margin="normal" />} />
+                  <Controller name="conocimientos_previos_requeridos" control={control} defaultValue="" render={({ field }) => <TextField {...field} InputLabelProps={{ shrink: true }} multiline rows={2} label={<Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>Conocimientos Previos a Reforzar<InfoTooltip title="Menciona algún concepto o habilidad anterior que sea crucial para esta clase y que consideres necesario reforzar al inicio." /></Box>} placeholder="Ej: Las tablas de multiplicar, concepto de célula, diferencias entre seres vivos e inertes." fullWidth margin="normal" />} />
+                </Grid>
+                <Grid size={{ xs: 12 }}>
+                  <Controller name="solicitud_especial" control={control} defaultValue="" render={({ field }) => <TextField {...field} InputLabelProps={{ shrink: true }} multiline rows={2} label={<Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>Solicitud Especial Adicional<InfoTooltip title="Añade cualquier otra indicación, idea o requisito específico que tengas para esta clase." /></Box>} placeholder="Ej: Incluir una actividad de movimiento, usar una canción específica, enfocar el cierre en la metacognición." fullWidth margin="normal" />} />
+                </Grid>
+
+                {/* --- CAMPOS OPCIONALES (RECURSOS MULTIMODALES) --- */}
+                <Grid size={{ xs: 12 }}>
+                  <Divider sx={{ my: 2 }}><Chip label="Recursos Multimodales (Opcional)" /></Divider>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
+                    label={<Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>Enlace de YouTube (Opcional)<InfoTooltip title="Si quieres que la IA analice un video de YouTube y lo integre en la planificación, incluye el enlace aquí." /></Box>}
+                    placeholder="Pega aquí la URL de un video de YouTube"
                     value={youtubeUrl}
                     onChange={(e) => setYoutubeUrl(e.target.value)}
                     margin="normal"
@@ -190,26 +321,30 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial, curs
                       startAdornment: <YouTubeIcon sx={{ mr: 1, color: 'text.secondary' }} />,
                     }}
                   />
-                  <Box sx={{ mt: 2 }}>
-                    <Button
-                      variant="outlined"
-                      component="label"
-                      fullWidth
-                      startIcon={<UploadFileIcon />}
-                    >
-                      Adjuntar Archivos
-                      <input
-                        type="file"
-                        hidden
-                        multiple
-                        onChange={(e) => {
-                          if (e.target.files) {
-                            setSelectedFiles(prev => [...prev, ...Array.from(e.target.files!)]);
-                          }
-                        }}
-                        accept=".pdf,.png,.jpg,.jpeg"
-                      />
-                    </Button>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <Box sx={{ mt: 2.5 }}>
+                    <Tooltip title="Puedes subir archivos (PDF, imágenes, etc.) para que la IA los considere como material base para diseñar las actividades.">
+                      <Button
+                        variant="outlined"
+                        component="label"
+                        fullWidth
+                        startIcon={<UploadFileIcon />}
+                      >
+                        Adjuntar Archivos (Opcional)
+                        <input
+                          type="file"
+                          hidden
+                          multiple
+                          onChange={(e) => {
+                            if (e.target.files) {
+                              setSelectedFiles(prev => [...prev, ...Array.from(e.target.files!)]);
+                            }
+                          }}
+                          accept=".pdf,.png,.jpg,.jpeg"
+                        />
+                      </Button>
+                    </Tooltip>
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
                       {selectedFiles.map((file, index) => (
                         <Chip
@@ -223,32 +358,13 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial, curs
                     </Box>
                   </Box>
                 </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <Typography gutterBottom>Duración de la Clase (minutos)</Typography>
-                  <Controller name="duracion_clase_minutos" control={control} render={({ field }) => <Slider {...field} aria-label="Duración" valueLabelDisplay="auto" step={15} marks min={30} max={120} />} />
-                  <Controller name="numero_estudiantes" control={control} render={({ field }) => <TextField {...field} label="Número de Estudiantes" fullWidth margin="normal" type="number" />} />
-                </Grid>
               </Grid>
-              <Divider sx={{ my: 3 }} />
-              <Grid container spacing={2}>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <Controller name="diversidad_aula" control={control} defaultValue="" render={({ field }) => <TextField {...field} multiline rows={2} label="Diversidad del Aula" fullWidth margin="normal" />} />
-                  <Controller name="clima_de_aula" control={control} defaultValue="" render={({ field }) => <TextField {...field} multiline rows={2} label="Clima de Aula" fullWidth margin="normal" />} />
-                  <Controller name="estilo_docente_preferido" control={control} defaultValue="" render={({ field }) => <TextField {...field} multiline rows={2} label="Estilo Docente Preferido" fullWidth margin="normal" />} />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <Controller name="tipo_evaluacion_formativa" control={control} defaultValue="" render={({ field }) => <TextField {...field} multiline rows={2} label="Tipo de Evaluación Formativa" fullWidth margin="normal" />} />
-                  <Controller name="contexto_unidad" control={control} defaultValue="" render={({ field }) => <TextField {...field} multiline rows={2} label="Contexto de la Unidad" fullWidth margin="normal" />} />
-                  <Controller name="conocimientos_previos_requeridos" control={control} defaultValue="" render={({ field }) => <TextField {...field} multiline rows={2} label="Conocimientos Previos Requeridos" fullWidth margin="normal" />} />
-                  <Controller name="solicitud_especial" control={control} defaultValue="" render={({ field }) => <TextField {...field} multiline rows={2} label="Solicitud Especial" fullWidth margin="normal" />} />
-                </Grid>
-              </Grid>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3, borderTop: 1, borderColor: 'divider', pt: 2 }}>
+                <Button type="submit" variant="contained" disabled={!isValid || isSubmitting}>
+                  {isSubmitting ? <CircularProgress size={24} /> : 'Generar Planificación'}
+                </Button>
+              </Box>
             </Paper>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-              <Button type="submit" variant="contained" disabled={!isValid || isSubmitting}>
-                {isSubmitting ? <CircularProgress size={24} /> : 'Generar Planificación'}
-              </Button>
-            </Box>
           </Box>
         )}
 
@@ -262,504 +378,497 @@ export default function FormularioPlanificacion({ ejes, selectedOA_initial, curs
               )}
               {planificacion === '' && !streamError ? (
                 <Grid size={{ xs: 12 }}>
-                   <Paper elevation={2} sx={{ p: 2, minHeight: '300px' }}>
-                     {pensamiento && (
-                       <Box sx={{ mb: 2 }}>
-                         <Chip
-                           icon={
-                             <PsychologyIcon
-                               sx={{
-                                 animation: 'spin 2s linear infinite',
-                                 '@keyframes spin': {
-                                   '0%': { transform: 'rotate(0deg)' },
-                                   '100%': { transform: 'rotate(360deg)' }
-                                 }
-                               }}
-                             />
-                           }
-                           label="Pensando..."
-                           size="small"
-                           color="primary"
-                           sx={{
-                             animation: 'pulse 1.5s ease-in-out infinite',
-                             '@keyframes pulse': {
-                               '0%': {
-                                 opacity: 1,
-                                 transform: 'scale(1)',
-                               },
-                               '50%': {
-                                 opacity: 0.8,
-                                 transform: 'scale(1.05)',
-                               },
-                               '100%': {
-                                 opacity: 1,
-                                 transform: 'scale(1)',
-                               }
-                             }
-                           }}
-                         />
-                         <Fade in={true} key={pensamiento} timeout={500}>
-                           <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'grey.600', mt: 1 }}>
-                             {pensamiento}
-                           </Typography>
-                         </Fade>
-                       </Box>
-                     )}
-                     {!isStreamingComplete && !pensamiento && <Skeleton variant="text" height={100} />}
-                   </Paper>
-                 </Grid>
+                  <Paper elevation={2} sx={{ p: 2, minHeight: '300px' }}>
+                    {pensamiento && (
+                      <Box sx={{ mb: 2 }}>
+                        <Chip
+                          icon={
+                            <PsychologyIcon
+                              sx={{
+                                animation: 'spin 2s linear infinite',
+                                '@keyframes spin': {
+                                  '0%': { transform: 'rotate(0deg)' },
+                                  '100%': { transform: 'rotate(360deg)' }
+                                }
+                              }}
+                            />
+                          }
+                          label="Pensando..."
+                          size="small"
+                          color="primary"
+                          sx={{
+                            animation: 'pulse 1.5s ease-in-out infinite',
+                            '@keyframes pulse': {
+                              '0%': {
+                                opacity: 1,
+                                transform: 'scale(1)',
+                              },
+                              '50%': {
+                                opacity: 0.8,
+                                transform: 'scale(1.05)',
+                              },
+                              '100%': {
+                                opacity: 1,
+                                transform: 'scale(1)',
+                              }
+                            }
+                          }}
+                        />
+                        <Fade in={true} key={pensamiento} timeout={500}>
+                          <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'grey.600', mt: 1 }}>
+                            {pensamiento}
+                          </Typography>
+                        </Fade>
+                      </Box>
+                    )}
+                    {!isStreamingComplete && !pensamiento && <Skeleton variant="text" height={100} />}
+                  </Paper>
+                </Grid>
               ) : planificacion !== '' ? (
-                 <Grid size={{ xs: 12 }}>
-                   <Typography variant="h6" gutterBottom>Planificación Generada</Typography>
-                   <Paper elevation={2} sx={{ p: 3, minHeight: '300px', transition: 'height 0.3s ease-out' }}>
-                     <Box>
-                       <ReactMarkdown
-                         remarkPlugins={[remarkGfm]}
-                         rehypePlugins={[rehypeRaw]}
-                         components={{
-                           br: () => <br />,
-                           h1: (props) => (
-                             <Typography
-                               variant="h3"
-                               gutterBottom
-                               sx={{
-                                 mt: 4,
-                                 mb: 3,
-                                 fontWeight: 700,
-                                 color: 'primary.main',
-                                 borderBottom: 2,
-                                 borderColor: 'primary.light',
-                                 pb: 2
-                               }}
-                               {...props}
-                             />
-                           ),
-                           h2: (props) => (
-                             <Typography
-                               variant="h4"
-                               gutterBottom
-                               sx={{
-                                 mt: 3,
-                                 mb: 2,
-                                 fontWeight: 600,
-                                 color: 'text.primary',
-                                 borderBottom: 1,
-                                 borderColor: 'divider',
-                                 pb: 1
-                               }}
-                               {...props}
-                             />
-                           ),
-                           h3: (props) => (
-                             <Typography
-                               variant="h5"
-                               gutterBottom
-                               sx={{
-                                 mt: 2.5,
-                                 mb: 1.5,
-                                 fontWeight: 600,
-                                 color: 'text.primary',
-                               }}
-                               {...props}
-                             />
-                           ),
-                           h4: (props) => (
-                             <Typography
-                               variant="h6"
-                               gutterBottom
-                               sx={{ mt: 2, mb: 1, fontWeight: 500 }}
-                               {...props}
-                             />
-                           ),
-                           h5: (props) => (
-                             <Typography
-                               variant="subtitle1"
-                               gutterBottom
-                               sx={{ mt: 1.5, mb: 1, fontWeight: 500 }}
-                               {...props}
-                             />
-                           ),
-                           h6: (props) => (
-                             <Typography
-                               variant="subtitle2"
-                               gutterBottom
-                               sx={{ mt: 1.5, mb: 1, fontWeight: 500 }}
-                               {...props}
-                             />
-                           ),
-                           p: (props) => (
-                             <Typography
-                               variant="body1"
-                               paragraph
-                               sx={{ mb: 2, lineHeight: 1.8 }}
-                               {...props}
-                             />
-                           ),
-                           strong: (props) => (
-                             <Box
-                               component="strong"
-                               sx={{
-                                 fontWeight: 700,
-                                 color: 'primary.main',
-                               }}
-                               {...props}
-                             />
-                           ),
-                           em: (props) => (
-                             <Box
-                               component="em"
-                               sx={{
-                                 fontStyle: 'italic',
-                                 color: 'text.secondary',
-                               }}
-                               {...props}
-                             />
-                           ),
-                           ul: (props) => (
-                             <List
-                               sx={{
-                                 pl: 0,
-                                 mb: 2,
-                               }}
-                               {...props}
-                             />
-                           ),
-                           ol: (props) => (
-                             <Box
-                               component="ol"
-                               sx={{
-                                 pl: 4,
-                                 mb: 2,
-                                 counterReset: 'item',
-                                 '& > li': {
-                                   display: 'block',
-                                   mb: 1,
-                                   position: 'relative',
-                                   '&:before': {
-                                     content: 'counter(item) ". "',
-                                     counterIncrement: 'item',
-                                     position: 'absolute',
-                                     left: -24,
-                                     color: 'primary.main',
-                                     fontWeight: 'bold',
-                                   }
-                                 }
-                               }}
-                               {...props}
-                             />
-                           ),
-                           li: ({ children }) => (
-                             <ListItem
-                               sx={{
-                                 py: 0.5,
-                                 px: 0,
-                                 display: 'flex',
-                                 alignItems: 'flex-start',
-                                 listStyleType: 'none',
-                               }}
-                             >
-                               <ListItemIcon
-                                 sx={{
-                                   minWidth: '28px',
-                                   mt: '3px',
-                                   alignItems: 'flex-start',
-                                   flexShrink: 0,
-                                 }}
-                               >
-                                 <FiberManualRecordIcon
-                                   sx={{
-                                     fontSize: '0.5rem',
-                                     color: 'primary.main',
-                                   }}
-                                 />
-                               </ListItemIcon>
-                               <ListItemText
-                                 primary={children}
-                                 primaryTypographyProps={{
-                                   variant: 'body1',
-                                   component: 'div',
-                                   sx: { lineHeight: 1.8 }
-                                 }}
-                                 sx={{ margin: 0 }}
-                               />
-                             </ListItem>
-                           ),
-                           blockquote: ({ children }) => {
-                             // Check if it's a GitHub-style alert blockquote
-                             const childrenText = String(children);
-                             const alertMatch = childrenText.match(/^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*(.*)$/);
-                             
-                             if (alertMatch) {
-                               const [, type, content] = alertMatch;
-                               const severity = type === 'WARNING' || type === 'CAUTION' ? 'warning' :
-                                              type === 'NOTE' ? 'info' :
-                                              type === 'TIP' ? 'success' :
-                                              type === 'IMPORTANT' ? 'error' : 'info';
-                               
-                               return (
-                                 <Alert
-                                   severity={severity}
-                                   sx={{
-                                     my: 3,
-                                     '& .MuiAlert-message': {
-                                       width: '100%',
-                                     }
-                                   }}
-                                   icon={type === 'TIP' ? <CheckCircleOutlineIcon /> : undefined}
-                                 >
-                                   <Box>
-                                     <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: content ? 1 : 0 }}>
-                                       {type}
-                                     </Typography>
-                                     {content && (
-                                       <Typography variant="body2">
-                                         {content}
-                                       </Typography>
-                                     )}
-                                   </Box>
-                                 </Alert>
-                               );
-                             }
-                             
-                             // Regular blockquote
-                             return (
-                               <Paper
-                                 elevation={0}
-                                 sx={{
-                                   borderLeft: (theme) => `5px solid ${theme.palette.primary.main}`,
-                                   pl: 3,
-                                   pr: 3,
-                                   py: 2,
-                                   my: 3,
-                                   bgcolor: (theme) => theme.palette.mode === 'dark'
-                                     ? 'rgba(144, 202, 249, 0.08)'
-                                     : 'rgba(25, 118, 210, 0.04)',
-                                   position: 'relative',
-                                   overflow: 'hidden',
-                                 }}
-                               >
-                                 <Box
-                                   sx={{
-                                     position: 'absolute',
-                                     top: 10,
-                                     left: 10,
-                                     opacity: 0.1,
-                                   }}
-                                 >
-                                   <FormatQuoteIcon sx={{ fontSize: '3rem', color: 'primary.main' }} />
-                                 </Box>
-                                 <Box sx={{ position: 'relative', zIndex: 1 }}>
-                                   <Typography
-                                     variant="body1"
-                                     component="div"
-                                     sx={{
-                                       fontStyle: 'italic',
-                                       color: 'text.primary',
-                                       lineHeight: 1.8,
-                                     }}
-                                   >
-                                     {children}
-                                   </Typography>
-                                 </Box>
-                               </Paper>
-                             );
-                           },
-                           code({ className, children, ...props }) {
-                             const match = /language-(\w+)/.exec(className || '');
-                             const language = match ? match[1] : '';
-                             
-                             return !match ? (
-                               // Inline code
-                               <Box
-                                 component="code"
-                                 sx={{
-                                   bgcolor: (theme) => theme.palette.mode === 'dark'
-                                     ? 'rgba(255, 255, 255, 0.1)'
-                                     : 'rgba(0, 0, 0, 0.06)',
-                                   borderRadius: 0.5,
-                                   px: 0.75,
-                                   py: 0.25,
-                                   fontFamily: 'Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace',
-                                   fontSize: '0.875em',
-                                   color: (theme) => theme.palette.mode === 'dark'
-                                     ? theme.palette.secondary.light
-                                     : theme.palette.secondary.dark,
-                                   border: 1,
-                                   borderColor: 'divider',
-                                 }}
-                                 {...props}
-                               >
-                                 {children}
-                               </Box>
-                             ) : (
-                               // Code block
-                               <Paper
-                                 elevation={2}
-                                 sx={{
-                                   my: 3,
-                                   overflow: 'hidden',
-                                   bgcolor: (theme) => theme.palette.mode === 'dark'
-                                     ? '#1e1e1e'
-                                     : '#f5f5f5',
-                                 }}
-                               >
-                                 <Box
-                                   sx={{
-                                     display: 'flex',
-                                     alignItems: 'center',
-                                     justifyContent: 'space-between',
-                                     px: 2,
-                                     py: 1,
-                                     bgcolor: (theme) => theme.palette.mode === 'dark'
-                                       ? 'rgba(255, 255, 255, 0.05)'
-                                       : 'rgba(0, 0, 0, 0.03)',
-                                     borderBottom: 1,
-                                     borderColor: 'divider',
-                                   }}
-                                 >
-                                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                     <CodeIcon sx={{ fontSize: '1rem', color: 'text.secondary' }} />
-                                     <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                                       {language || 'code'}
-                                     </Typography>
-                                   </Box>
-                                 </Box>
-                                 <Box sx={{ p: 2, overflowX: 'auto' }}>
-                                   <pre style={{
-                                     margin: 0,
-                                     fontFamily: 'Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace',
-                                     fontSize: '0.875rem',
-                                     lineHeight: 1.6,
-                                   }}>
-                                     <code {...props}>{children}</code>
-                                   </pre>
-                                 </Box>
-                               </Paper>
-                             );
-                           },
-                           a: ({ href, children, ...props }) => (
-                             <Link
-                               href={href}
-                               target="_blank"
-                               rel="noopener noreferrer"
-                               sx={{
-                                 color: 'primary.main',
-                                 textDecoration: 'none',
-                                 fontWeight: 500,
-                                 display: 'inline-flex',
-                                 alignItems: 'center',
-                                 gap: 0.5,
-                                 '&:hover': {
-                                   textDecoration: 'underline',
-                                   color: 'primary.dark',
-                                 },
-                               }}
-                               {...props}
-                             >
-                               {children}
-                               <LinkIcon sx={{ fontSize: '0.875rem' }} />
-                             </Link>
-                           ),
-                           hr: () => (
-                             <Divider
-                               sx={{
-                                 my: 4,
-                                 '&:before, &:after': {
-                                   borderColor: 'primary.light',
-                                   borderWidth: 2,
-                                 }
-                               }}
-                             >
-                               <Chip
-                                 label="•••"
-                                 size="small"
-                                 sx={{
-                                   bgcolor: 'background.paper',
-                                   color: 'primary.main',
-                                   fontWeight: 'bold',
-                                 }}
-                               />
-                             </Divider>
-                           ),
-                           table: (props) => (
-                             <TableContainer
-                               component={Paper}
-                               elevation={1}
-                               sx={{
-                                 my: 3,
-                                 '& .MuiTable-root': {
-                                   '& .MuiTableCell-root': {
-                                     borderColor: 'divider',
-                                   }
-                                 }
-                               }}
-                             >
-                               <Table {...props} />
-                             </TableContainer>
-                           ),
-                           thead: ({ children }) => (
-                             <TableHead
-                               sx={{
-                                 bgcolor: (theme) => theme.palette.mode === 'dark'
-                                   ? 'rgba(255, 255, 255, 0.05)'
-                                   : 'rgba(0, 0, 0, 0.03)',
-                               }}
-                             >
-                               {children}
-                             </TableHead>
-                           ),
-                           tbody: ({ children }) => <TableBody>{children}</TableBody>,
-                           tr: ({ children }) => (
-                             <TableRow
-                               sx={{
-                                 '&:hover': {
-                                   bgcolor: 'action.hover',
-                                 },
-                               }}
-                             >
-                               {children}
-                             </TableRow>
-                           ),
-                           th: ({ align, ...props }) => (
-                             <TableCell
-                               align={align as TableCellProps['align']}
-                               sx={{
-                                 fontWeight: 700,
-                                 color: 'primary.main',
-                                 fontSize: '0.875rem',
-                                 textTransform: 'uppercase',
-                                 letterSpacing: 0.5,
-                               }}
-                               {...props}
-                             />
-                           ),
-                           td: ({ align, ...props }) => (
-                             <TableCell
-                               align={align as TableCellProps['align']}
-                               sx={{
-                                 fontSize: '0.875rem',
-                               }}
-                               {...props}
-                             />
-                           ),
-                         }}
-                       >
-                         {planificacion}
-                       </ReactMarkdown>
-                       {!isStreamingComplete && (
-                         <span className="blinking-cursor">|</span>
-                       )}
-                     </Box>
-                   </Paper>
-                 </Grid>
+                <Grid size={{ xs: 12 }}>
+                  <Typography variant="h6" gutterBottom>Planificación Generada</Typography>
+                  <Paper elevation={2} sx={{ p: 3, minHeight: '300px', transition: 'height 0.3s ease-out' }}>
+                    <Box>
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        rehypePlugins={[rehypeRaw]}
+                        components={{
+                          br: () => <br />,
+                          h1: (props) => (
+                            <Typography
+                              variant="h3"
+                              gutterBottom
+                              sx={{
+                                mt: 4,
+                                mb: 3,
+                                fontWeight: 700,
+                                color: 'primary.main',
+                                borderBottom: 2,
+                                borderColor: 'primary.light',
+                                pb: 2
+                              }}
+                              {...props}
+                            />
+                          ),
+                          h2: (props) => (
+                            <Typography
+                              variant="h4"
+                              gutterBottom
+                              sx={{
+                                mt: 3,
+                                mb: 2,
+                                fontWeight: 600,
+                                color: 'text.primary',
+                                borderBottom: 1,
+                                borderColor: 'divider',
+                                pb: 1
+                              }}
+                              {...props}
+                            />
+                          ),
+                          h3: (props) => (
+                            <Typography
+                              variant="h5"
+                              gutterBottom
+                              sx={{
+                                mt: 2.5,
+                                mb: 1.5,
+                                fontWeight: 600,
+                                color: 'text.primary',
+                              }}
+                              {...props}
+                            />
+                          ),
+                          h4: (props) => (
+                            <Typography
+                              variant="h6"
+                              gutterBottom
+                              sx={{ mt: 2, mb: 1, fontWeight: 500 }}
+                              {...props}
+                            />
+                          ),
+                          h5: (props) => (
+                            <Typography
+                              variant="subtitle1"
+                              gutterBottom
+                              sx={{ mt: 1.5, mb: 1, fontWeight: 500 }}
+                              {...props}
+                            />
+                          ),
+                          h6: (props) => (
+                            <Typography
+                              variant="subtitle2"
+                              gutterBottom
+                              sx={{ mt: 1.5, mb: 1, fontWeight: 500 }}
+                              {...props}
+                            />
+                          ),
+                          p: (props) => (
+                            <Typography
+                              variant="body1"
+                              paragraph
+                              sx={{ mb: 2, lineHeight: 1.8 }}
+                              {...props}
+                            />
+                          ),
+                          strong: (props) => (
+                            <Box
+                              component="strong"
+                              sx={{
+                                fontWeight: 700,
+                                color: 'primary.main',
+                              }}
+                              {...props}
+                            />
+                          ),
+                          em: (props) => (
+                            <Box
+                              component="em"
+                              sx={{
+                                fontStyle: 'italic',
+                                color: 'text.secondary',
+                              }}
+                              {...props}
+                            />
+                          ),
+                          ul: (props) => (
+                            <List
+                              sx={{
+                                pl: 0,
+                                mb: 2,
+                              }}
+                              {...props}
+                            />
+                          ),
+                          ol: (props) => (
+                            <Box
+                              component="ol"
+                              sx={{
+                                pl: 4,
+                                mb: 2,
+                                counterReset: 'item',
+                                '& > li': {
+                                  display: 'block',
+                                  mb: 1,
+                                  position: 'relative',
+                                  '&:before': {
+                                    content: 'counter(item) ". "',
+                                    counterIncrement: 'item',
+                                    position: 'absolute',
+                                    left: -24,
+                                    color: 'primary.main',
+                                    fontWeight: 'bold',
+                                  }
+                                }
+                              }}
+                              {...props}
+                            />
+                          ),
+                          li: ({ children }) => (
+                            <ListItem
+                              sx={{
+                                py: 0.5,
+                                px: 0,
+                                display: 'flex',
+                                alignItems: 'flex-start',
+                                listStyleType: 'none',
+                              }}
+                            >
+                              <ListItemIcon
+                                sx={{
+                                  minWidth: '28px',
+                                  mt: '3px',
+                                  alignItems: 'flex-start',
+                                  flexShrink: 0,
+                                }}
+                              >
+                                <FiberManualRecordIcon
+                                  sx={{
+                                    fontSize: '0.5rem',
+                                    color: 'primary.main',
+                                  }}
+                                />
+                              </ListItemIcon>
+                              <ListItemText
+                                primary={children}
+                                primaryTypographyProps={{
+                                  variant: 'body1',
+                                  component: 'div',
+                                  sx: { lineHeight: 1.8 }
+                                }}
+                                sx={{ margin: 0 }}
+                              />
+                            </ListItem>
+                          ),
+                          blockquote: ({ children }) => {
+                            const childrenText = String(children);
+                            const alertMatch = childrenText.match(/^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*(.*)$/);
+
+                            if (alertMatch) {
+                              const [, type, content] = alertMatch;
+                              const severity = type === 'WARNING' || type === 'CAUTION' ? 'warning' :
+                                type === 'NOTE' ? 'info' :
+                                  type === 'TIP' ? 'success' :
+                                    type === 'IMPORTANT' ? 'error' : 'info';
+
+                              return (
+                                <Alert
+                                  severity={severity}
+                                  sx={{
+                                    my: 3,
+                                    '& .MuiAlert-message': {
+                                      width: '100%',
+                                    }
+                                  }}
+                                  icon={type === 'TIP' ? <CheckCircleOutlineIcon /> : undefined}
+                                >
+                                  <Box>
+                                    <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: content ? 1 : 0 }}>
+                                      {type}
+                                    </Typography>
+                                    {content && (
+                                      <Typography variant="body2">
+                                        {content}
+                                      </Typography>
+                                    )}
+                                  </Box>
+                                </Alert>
+                              );
+                            }
+
+                            return (
+                              <Paper
+                                elevation={0}
+                                sx={{
+                                  borderLeft: (theme) => `5px solid ${theme.palette.primary.main}`,
+                                  pl: 3,
+                                  pr: 3,
+                                  py: 2,
+                                  my: 3,
+                                  bgcolor: (theme) => theme.palette.mode === 'dark'
+                                    ? 'rgba(144, 202, 249, 0.08)'
+                                    : 'rgba(25, 118, 210, 0.04)',
+                                  position: 'relative',
+                                  overflow: 'hidden',
+                                }}
+                              >
+                                <Box
+                                  sx={{
+                                    position: 'absolute',
+                                    top: 10,
+                                    left: 10,
+                                    opacity: 0.1,
+                                  }}
+                                >
+                                  <FormatQuoteIcon sx={{ fontSize: '3rem', color: 'primary.main' }} />
+                                </Box>
+                                <Box sx={{ position: 'relative', zIndex: 1 }}>
+                                  <Typography
+                                    variant="body1"
+                                    component="div"
+                                    sx={{
+                                      fontStyle: 'italic',
+                                      color: 'text.primary',
+                                      lineHeight: 1.8,
+                                    }}
+                                  >
+                                    {children}
+                                  </Typography>
+                                </Box>
+                              </Paper>
+                            );
+                          },
+                          code({ className, children, ...props }) {
+                            const match = /language-(\w+)/.exec(className || '');
+                            const language = match ? match[1] : '';
+
+                            return !match ? (
+                              <Box
+                                component="code"
+                                sx={{
+                                  bgcolor: (theme) => theme.palette.mode === 'dark'
+                                    ? 'rgba(255, 255, 255, 0.1)'
+                                    : 'rgba(0, 0, 0, 0.06)',
+                                  borderRadius: 0.5,
+                                  px: 0.75,
+                                  py: 0.25,
+                                  fontFamily: 'Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace',
+                                  fontSize: '0.875em',
+                                  color: (theme) => theme.palette.mode === 'dark'
+                                    ? theme.palette.secondary.light
+                                    : theme.palette.secondary.dark,
+                                  border: 1,
+                                  borderColor: 'divider',
+                                }}
+                                {...props}
+                              >
+                                {children}
+                              </Box>
+                            ) : (
+                              <Paper
+                                elevation={2}
+                                sx={{
+                                  my: 3,
+                                  overflow: 'hidden',
+                                  bgcolor: (theme) => theme.palette.mode === 'dark'
+                                    ? '#1e1e1e'
+                                    : '#f5f5f5',
+                                }}
+                              >
+                                <Box
+                                  sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    px: 2,
+                                    py: 1,
+                                    bgcolor: (theme) => theme.palette.mode === 'dark'
+                                      ? 'rgba(255, 255, 255, 0.05)'
+                                      : 'rgba(0, 0, 0, 0.03)',
+                                    borderBottom: 1,
+                                    borderColor: 'divider',
+                                  }}
+                                >
+                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <CodeIcon sx={{ fontSize: '1rem', color: 'text.secondary' }} />
+                                    <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                                      {language || 'code'}
+                                    </Typography>
+                                  </Box>
+                                </Box>
+                                <Box sx={{ p: 2, overflowX: 'auto' }}>
+                                  <pre style={{
+                                    margin: 0,
+                                    fontFamily: 'Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace',
+                                    fontSize: '0.875rem',
+                                    lineHeight: 1.6,
+                                  }}>
+                                    <code {...props}>{children}</code>
+                                  </pre>
+                                </Box>
+                              </Paper>
+                            );
+                          },
+                          a: ({ href, children, ...props }) => (
+                            <Link
+                              href={href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              sx={{
+                                color: 'primary.main',
+                                textDecoration: 'none',
+                                fontWeight: 500,
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 0.5,
+                                '&:hover': {
+                                  textDecoration: 'underline',
+                                  color: 'primary.dark',
+                                },
+                              }}
+                              {...props}
+                            >
+                              {children}
+                              <LinkIcon sx={{ fontSize: '0.875rem' }} />
+                            </Link>
+                          ),
+                          hr: () => (
+                            <Divider
+                              sx={{
+                                my: 4,
+                                '&:before, &:after': {
+                                  borderColor: 'primary.light',
+                                  borderWidth: 2,
+                                }
+                              }}
+                            >
+                              <Chip
+                                label="•••"
+                                size="small"
+                                sx={{
+                                  bgcolor: 'background.paper',
+                                  color: 'primary.main',
+                                  fontWeight: 'bold',
+                                }}
+                              />
+                            </Divider>
+                          ),
+                          table: (props) => (
+                            <TableContainer
+                              component={Paper}
+                              elevation={1}
+                              sx={{
+                                my: 3,
+                                '& .MuiTable-root': {
+                                  '& .MuiTableCell-root': {
+                                    borderColor: 'divider',
+                                  }
+                                }
+                              }}
+                            >
+                              <Table {...props} />
+                            </TableContainer>
+                          ),
+                          thead: ({ children }) => (
+                            <TableHead
+                              sx={{
+                                bgcolor: (theme) => theme.palette.mode === 'dark'
+                                  ? 'rgba(255, 255, 255, 0.05)'
+                                  : 'rgba(0, 0, 0, 0.03)',
+                              }}
+                            >
+                              {children}
+                            </TableHead>
+                          ),
+                          tbody: ({ children }) => <TableBody>{children}</TableBody>,
+                          tr: ({ children }) => (
+                            <TableRow
+                              sx={{
+                                '&:hover': {
+                                  bgcolor: 'action.hover',
+                                },
+                              }}
+                            >
+                              {children}
+                            </TableRow>
+                          ),
+                          th: ({ align, ...props }) => (
+                            <TableCell
+                              align={align as TableCellProps['align']}
+                              sx={{
+                                fontWeight: 700,
+                                color: 'primary.main',
+                                fontSize: '0.875rem',
+                                textTransform: 'uppercase',
+                                letterSpacing: 0.5,
+                              }}
+                              {...props}
+                            />
+                          ),
+                          td: ({ align, ...props }) => (
+                            <TableCell
+                              align={align as TableCellProps['align']}
+                              sx={{
+                                fontSize: '0.875rem',
+                              }}
+                              {...props}
+                            />
+                          ),
+                        }}
+                      >
+                        {planificacion}
+                      </ReactMarkdown>
+                      {!isStreamingComplete && (
+                        <span className="blinking-cursor">|</span>
+                      )}
+                    </Box>
+                  </Paper>
+                </Grid>
               ) : null}
             </Grid>
           </Box>
-        )
-        }
-      </form >
-
-      {/* OA display is now implicit in the page title, no longer needed here */}
-    </Box >
+        )}
+      </form>
+    </Box>
   );
 }

@@ -36,7 +36,7 @@ export default async function PlanificarPage({ params: { curso, asignatura }, se
     .find(oa => oa.oa_codigo_oficial === searchParams.selectedOA);
 
   return (
-    <Container maxWidth="md">
+    <Container maxWidth="lg">
       <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ mt: 4 }}>
         Planificar para {decodedCurso} - {decodedAsignatura}
       </Typography>
@@ -47,7 +47,7 @@ export default async function PlanificarPage({ params: { curso, asignatura }, se
           </Typography>
         </Tooltip>
       )}
-      <FormularioPlanificacion ejes={ejesConOAs || []} selectedOA_initial={searchParams.selectedOA} curso={decodedCurso} />
+      <FormularioPlanificacion ejes={ejesConOAs || []} selectedOA_initial={searchParams.selectedOA} curso={decodedCurso} sx={{ mb: 8 }} />
     </Container>
   );
 }
