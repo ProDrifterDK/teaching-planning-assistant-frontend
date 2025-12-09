@@ -1,9 +1,8 @@
-import { getServerSession } from "next-auth";
+import { auth } from "@/auth";
 import SelectorCurricular from "./components/SelectorCurricular";
 import { Curso } from "./lib/types";
 import { Container, Typography, Alert, Box } from "@mui/material";
 import { redirect } from "next/navigation";
-import { authOptions } from "./api/auth/[...nextauth]/route";
 import Image from "next/image";
 
 type NivelesResponse = {
@@ -49,7 +48,7 @@ async function getCursos(accessToken: string): Promise<NivelesResponse> {
 }
 
 export default async function HomePage() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   if (!session) {
     redirect('/auth/signin');

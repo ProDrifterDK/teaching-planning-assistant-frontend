@@ -1,8 +1,7 @@
 import FormularioPlanificacion from "@/app/components/FormularioPlanificacion";
 import { Eje } from "@/app/lib/types";
 import { Container, Typography, Tooltip } from "@mui/material";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
 async function getOAs(curso: string, asignatura: string, accessToken: string): Promise<Eje[] | undefined> {
@@ -16,12 +15,16 @@ async function getOAs(curso: string, asignatura: string, accessToken: string): P
 }
 
 interface PageProps {
-  params: { curso: string; asignatura: string };
-  searchParams: { selectedOA?: string };
+  params: Promise<{ curso: string; asignatura: string }>;
+  searchParams: Promise<{ selectedOA?: string }>;
 }
 
-export default async function PlanificarPage({ params: { curso, asignatura }, searchParams }: PageProps) {
-  const session = await getServerSession(authOptions);
+export default async function PlanificarPage(props: PageProps) {
+  const params = await props.params;
+  const searchParams = await props.searchParams;
+  const { curso, asignatura } = params;
+
+  const session = await auth();
   if (!session) {
     redirect('/auth/signin');
   }

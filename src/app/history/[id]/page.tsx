@@ -68,6 +68,32 @@ export default function HistoryDetailPage() {
     const { status } = useSession();
     const params = useParams();
     const router = useRouter();
+    // useParams returns a Params object, not a Promise in Client Components
+    // However, in Next.js 15+, it's recommended to treat it as potentially async or use React.use() if it were a prop
+    // But useParams hook is synchronous in client components.
+    // Wait, the instructions say "APIs like params, searchParams, cookies(), headers() are now strictly asynchronous".
+    // This applies to Server Components props.
+    // useParams is a Client Component hook.
+    // Let's check if useParams has changed.
+    // According to Next.js 15 upgrade guide: "useParams returns a ReadonlyURLSearchParams which is not a promise".
+    // Actually, useParams returns Params.
+    // The breaking change is for Page props in Server Components.
+    // This file is 'use client'.
+    // So useParams() hook should still work as before, but let's verify if there are any nuances.
+    // Wait, Next.js 15 docs say: "The useParams hook has not changed."
+    // BUT, if this page was a Server Component receiving params as props, we would need to await it.
+    // Since it is a Client Component ('use client'), it uses useParams() hook.
+    // Let's double check if I need to change anything here.
+    // The instruction says: "Check these files that likely use params (dynamic routes): src/app/history/[id]/page.tsx".
+    // If I look at the file content, it uses `useParams` from `next/navigation`.
+    // `const params = useParams(); const { id } = params;`
+    // This is correct for Client Components.
+    // However, maybe I should check if I can convert it to Server Component or if there are other things.
+    // The instruction specifically mentioned "APIs like params... are now strictly asynchronous".
+    // This usually refers to the props passed to the page component.
+    // But this page is a client component.
+    // Let's look at `src/app/api/auth/[...nextauth]/route.ts` first as it is a Route Handler (Server side).
+    
     const { id } = params;
     const [isExporting, setIsExporting] = useState(false);
 

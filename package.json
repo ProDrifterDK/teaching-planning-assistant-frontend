@@ -15,10 +15,10 @@
     "@mui/icons-material": "^7.3.4",
     "@mui/material": "^7.3.4",
     "axios": "^1.12.2",
-    "next": "15.5.5",
-    "next-auth": "^4.24.11",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
+    "next": "16.0.8",
+    "next-auth": "^5.0.0-beta.30",
+    "react": "19.2.1",
+    "react-dom": "19.2.1",
     "react-hook-form": "^7.65.0",
     "react-markdown": "^10.1.0",
     "rehype-raw": "^7.0.0",
@@ -28,10 +28,14 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
     "eslint": "^9",
-    "eslint-config-next": "15.5.5",
+    "eslint-config-next": "16.0.8",
     "typescript": "^5"
+  },
+  "overrides": {
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3"
   }
 }
